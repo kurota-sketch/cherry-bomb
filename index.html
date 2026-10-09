@@ -582,7 +582,7 @@ main.wide{max-width:1680px}
 .ic.danger{color:var(--cherry)}
 .eb-status{flex:1 1 140px;font-size:.8rem;color:var(--muted);min-width:0}
 body.is-editing{padding-bottom:180px}
-.lightbox{position:fixed;inset:0;z-index:30;background:rgba(74,68,66,.82);display:grid;place-items:center;padding:24px 16px;cursor:zoom-out}
+.lightbox{position:fixed;inset:0;z-index:200;background:rgba(74,68,66,.82);display:grid;place-items:center;padding:24px 16px;cursor:zoom-out}
 .lightbox img{max-height:82vh;width:auto;max-width:100%;border-radius:var(--r)}
 .lightbox p{color:#fff;font-size:.9rem;margin:10px 0 0;text-align:center}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
@@ -1302,6 +1302,41 @@ body.so-active,body.so-active *{cursor:grabbing!important;user-select:none}
   .pan-bar span{display:none}
   .pan-bar button{min-width:0;padding:2px 6px;font-size:11px}
 }
+/* ---- Route：可編輯的時間軸＋主線章節 ---- */
+ol.tl .card p.rt-t{margin:0;white-space:pre-wrap}
+.rt-tools{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+ol.tl li:nth-child(odd) .rt-tools{justify-content:flex-end}
+.rt-tools button,.arc-ed button{padding:2px 9px;border:1px solid #f1d2d6;border-radius:999px;background:#fff;color:#c9606d;font-size:11px;cursor:pointer}
+.rt-tools button.on{background:#c9606d;color:#fff;border-color:#c9606d}
+.rt-addrow{display:flex;justify-content:center;margin:16px 0 26px}
+body.is-editing ol.tl [contenteditable]{outline:1px dashed #e0c9c6;outline-offset:2px}
+.arc-tip{margin:2px 0 6px;font-size:.78rem;color:var(--muted)}
+ol.chapters li{padding:0}
+.arc-b{display:flex;align-items:baseline;gap:6px;width:100%;padding:4px 0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:default}
+.arc-b.has{cursor:pointer;color:var(--ink,#4a3a3c)}
+.arc-b.has:hover span{color:var(--cherry);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px}
+.arc-b i{font-style:normal;font-size:.7em;color:var(--cherry)}
+.arc-b:not(.has) span{color:var(--muted)}
+body.is-editing .arc-b{cursor:pointer}
+.arc-dlg{position:fixed;inset:0;z-index:145;display:grid;place-items:center;padding:20px 14px;background:rgba(58,42,44,.45);backdrop-filter:blur(3px)}
+.arc-dlg[hidden]{display:none}
+.arc-box{position:relative;width:min(600px,100%);max-height:min(82vh,100%);overflow-y:auto;box-sizing:border-box;padding:28px 26px 24px;border-radius:22px;background:#fffdfb;box-shadow:0 0 0 4px #fff,0 22px 50px rgba(58,42,44,.3);color:#4a3a3c}
+.arc-no{margin:0;font:700 11px/1 "Courier Prime",monospace;letter-spacing:.35em;color:var(--apricot,#e0844e)}
+.arc-name{margin:8px 40px 14px 0;font:700 1.3rem/1.35 var(--f-display);letter-spacing:.08em;color:#5a3a3e}
+.arc-body{margin:0;white-space:pre-wrap;line-height:1.95;font-size:.95rem}
+.arc-body:empty::before{content:"（還沒有內容）";color:#c9b7b5}
+body:not(.is-editing) .arc-body:empty{display:none}
+.arc-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:16px}
+.arc-imgs figure{position:relative;margin:0;aspect-ratio:1;border-radius:12px;overflow:hidden;cursor:zoom-in;background:#f3eaea}
+.arc-imgs img{width:100%;height:100%;object-fit:cover;display:block}
+.arc-imgs .ax{position:absolute;right:4px;top:4px;width:22px;height:22px;border:0;border-radius:50%;background:#fff;color:#c9606d;cursor:pointer}
+.arc-x{position:absolute;right:14px;top:14px;width:32px;height:32px;border:1px solid #ecdcdb;border-radius:50%;background:#fff;color:#9a8587;font-size:16px;cursor:pointer}
+.arc-nav{display:flex;justify-content:space-between;gap:8px;margin-top:22px;padding-top:14px;border-top:1px dashed #ecdcdb}
+.arc-nav button{border:0;background:none;color:#9a8587;font-size:.82rem;cursor:pointer;max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arc-nav button:hover{color:#c9606d}
+.arc-ed{display:flex;flex-wrap:wrap;gap:4px;margin-top:16px}
+body.is-editing .arc-box [contenteditable]{outline:1px dashed #e0c9c6;outline-offset:3px;border-radius:4px}
+@media (max-width:640px){.arc-dlg{place-items:end stretch;padding:0}.arc-box{width:100%;max-height:86vh;border-radius:22px 22px 0 0;box-shadow:0 -10px 30px rgba(58,42,44,.25)}}
 /*cover*/
 .dos-back{display:inline-block;margin:0 0 12px;font:700 12px/1 "Courier Prime",var(--f-body);letter-spacing:.2em;color:#9a8587;text-decoration:none}
 .dos-back:hover{color:var(--ac)}
@@ -1777,48 +1812,18 @@ body.so-active,body.so-active *{cursor:grabbing!important;user-select:none}
     <!-- CP年表 -->
     <section class="page" id="history" data-page hidden>
       <div class="route-head">
-        <span class="eyebrow">Mia's Route · Target：Bakugo Katsuki</span>
+        <span class="eyebrow" data-e="rt-eyebrow">Mia's Route · Target：Bakugo Katsuki</span>
         <h1 class="ptitle route-title">Route</h1>
-        <h2 class="sub">未亜 → 勝己　從初印象到現在</h2>
+        <h2 class="sub" data-e="rt-sub">未亜 → 勝己　從初印象到現在</h2>
       </div>
-      <ol class="tl">
-        <li><div class="card">
-          <span class="kind">雄英入學</span>
-          <h3>初印象</h3>
-          <p style="margin:0">「嗚哇這人性格好差，絕對不想靠近。」</p>
-        </div></li>
-        <li><div class="card">
-          <span class="kind">體育祭</span>
-          <h3>明明臉很好看</h3>
-          <p style="margin:0">「明明臉很好看啊，為什麼不好好用臉啊？」<br>「……啊？我剛剛是覺得他很好看嗎？」</p>
-        </div></li>
-        <li><div class="card">
-          <span class="kind">職場體驗</span>
-          <h3>八二分頭</h3>
-          <p style="margin:0">和爆豪一起被牛仔褲指名，看他被梳成八二分頭時憋笑到快內傷。</p>
-        </div></li>
-        <li><div class="card">
-          <span class="kind">林間合宿</span>
-          <h3>拌嘴變多了</h3>
-          <p style="margin:0">知道爆豪幾乎沒跟女生相處過，鬧得更積極，偶爾說些讓人誤會的話。他每次的反應都讓她覺得很有趣，可能已經有一點好感，只是自己還沒發現。爆豪被綁架的當下，她愣在原地。</p>
-        </div></li>
-        <li class="key"><div class="card">
-          <span class="kind real">神野之後</span>
-          <h3>捏著衣角</h3>
-          <p style="margin:0">看到爆豪回來，心裡的大石終於放下。見到本人後只是捏著他的衣角不說話。爆豪一臉不耐煩想罵人，看了看她的樣子，最後還是隨手揉亂她的頭髮。</p>
-        </div></li>
-        <li class="key"><div class="card">
-          <span class="kind real">發覺</span>
-          <h3>高攻低防</h3>
-          <p style="margin:0">未亜已經意識到自己的感情，但還不願承認。為了不露破綻，她故意用更撩的方式鬧他，裝出一副游刃有餘的樣子，其實是完全的玻璃大砲。爆豪起初被弄得有點不知所措，心想這女人到底什麼毛病；後來意外發現她的本性，就再也不客氣地反攻回去了。</p>
-        </div></li>
-      </ol>
+      <ol class="tl" id="routeTl"></ol>
+      <div class="rt-addrow edit-only" hidden><button type="button" class="btn small" id="rtAdd">＋ 新增一段</button></div>
 
-      <div class="card">
-        <h3>主線 <span class="wip">施工中</span></h3>
-        <ol class="chapters">
-          <li>雄英入學</li><li>USJ</li><li>雄英體育祭</li><li>職場體驗</li><li>期末考</li><li>林間合宿／神野區惡夢</li><li>臨時執照考試</li><li>校外實習／黑道篇</li><li>雄英文化祭</li><li>A班 VS. B班</li><li>重啟英雄實習</li><li>超常解放戰線</li><li>最終戰之後</li>
-        </ol>
+      <div class="card arcs">
+        <h3><span data-e="arc-h">主線</span> <span class="wip" data-e="arc-wip">施工中</span></h3>
+        <p class="arc-tip" data-e="arc-tip">點有 ✦ 的章節可以看內容</p>
+        <ol class="chapters" id="arcList"></ol>
+        <div class="edit-only" hidden style="margin-top:10px"><button type="button" class="btn small" id="arcAdd">＋ 新增主線章節</button></div>
       </div>
     </section>
 
@@ -1945,6 +1950,9 @@ body.so-active,body.so-active *{cursor:grabbing!important;user-select:none}
   <div class="gv-stage" id="gvStage"><button type="button" class="gv-nav prev" id="gvPrev" aria-label="上一張">‹</button><div class="gv-media" id="gvMedia"></div><button type="button" class="gv-nav next" id="gvNext" aria-label="下一張">›</button></div>
   <aside class="gv-side" id="gvSide"></aside>
 </div>
+<div class="arc-dlg" id="arcDlg" hidden role="dialog" aria-modal="true" aria-label="主線內容">
+  <div class="arc-box" id="arcBox"></div>
+</div>
 <div class="lightbox" id="lightbox" hidden><img alt="" id="lbImg"><video id="lbVid" controls loop playsinline hidden></video><p id="lbCap"></p></div>
 <div class="mp" id="mp" hidden aria-label="音樂播放器">
   <div class="mp-bar"><i id="mpBar"></i></div>
@@ -2056,7 +2064,7 @@ body.so-active,body.so-active *{cursor:grabbing!important;user-select:none}
   window.__cbRoute=route;
 })();
 </script>
-<script src="app.js?v=1791571290"></script>
+<script src="app.js?v=1791571478"></script>
 
 </body>
 </html>

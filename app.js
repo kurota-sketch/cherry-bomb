@@ -48,6 +48,7 @@
     state.gallery.forEach(function (g) { u[g.src] = 1; (g.alts || []).forEach(function (p) { u[p] = 1; }); });
     (state.wardrobe || []).forEach(function (o) { (o.imgs || []).forEach(function (p) { u[p] = 1; }); });
     (state.music || []).forEach(function (t) { if (t.src) u[t.src] = 1; });
+    (state.arcs || []).forEach(function (a) { (a.imgs || []).forEach(function (p) { u[p] = 1; }); });
     (state.library || []).forEach(function (w) { if (w.cover) u[w.cover] = 1; (w.pages || []).forEach(function (p) { u[p] = 1; }); (w.blocks || []).forEach(function (b) { if (b.src) u[b.src] = 1; }); });
     Object.keys(u).forEach(function (k) { if (k.indexOf('img/') !== 0 && k.indexOf('music/') !== 0) delete u[k]; });
     return u;
@@ -1461,7 +1462,7 @@
     sheetData().c[swTarget.dataset.c] = this.value; markDirty();
   });
 
-  function renderAll() { if (!state) return; renderSheet(); renderSlots(); renderBoard(); renderGallery(); renderLook(); renderMusic(); renderLib(); }
+  function renderAll() { if (!state) return; renderSheet(); renderSlots(); renderBoard(); renderGallery(); renderLook(); renderMusic(); renderLib(); renderRoute(); }
 
   // ---------- 編輯模式 ----------
   function setEditing(on) {
@@ -1770,6 +1771,104 @@
     });
     if (rdOpen) { var w = libFind(rdOpen); if (w && w.type === 'novel') renderNovel(w); if (w && w.type === 'comic' && !$('comic').hidden) renderComic(w, true); }
   }
+
+  // ---------- Route：時間軸＋主線章節（全部可以在網站上編輯、隨時新增） ----------
+  var ROUTE0 = [{"kind": "雄英入學", "title": "初印象", "text": "「嗚哇這人性格好差，絕對不想靠近。」", "key": false}, {"kind": "體育祭", "title": "明明臉很好看", "text": "「明明臉很好看啊，為什麼不好好用臉啊？」\n「……啊？我剛剛是覺得他很好看嗎？」", "key": false}, {"kind": "職場體驗", "title": "八二分頭", "text": "和爆豪一起被牛仔褲指名，看他被梳成八二分頭時憋笑到快內傷。", "key": false}, {"kind": "林間合宿", "title": "拌嘴變多了", "text": "知道爆豪幾乎沒跟女生相處過，鬧得更積極，偶爾說些讓人誤會的話。他每次的反應都讓她覺得很有趣，可能已經有一點好感，只是自己還沒發現。爆豪被綁架的當下，她愣在原地。", "key": false}, {"kind": "神野之後", "title": "捏著衣角", "text": "看到爆豪回來，心裡的大石終於放下。見到本人後只是捏著他的衣角不說話。爆豪一臉不耐煩想罵人，看了看她的樣子，最後還是隨手揉亂她的頭髮。", "key": true}, {"kind": "發覺", "title": "高攻低防", "text": "未亜已經意識到自己的感情，但還不願承認。為了不露破綻，她故意用更撩的方式鬧他，裝出一副游刃有餘的樣子，其實是完全的玻璃大砲。爆豪起初被弄得有點不知所措，心想這女人到底什麼毛病；後來意外發現她的本性，就再也不客氣地反攻回去了。", "key": true}], ARCS0 = ["雄英入學", "USJ", "雄英體育祭", "職場體驗", "期末考", "林間合宿／神野區惡夢", "臨時執照考試", "校外實習／黑道篇", "雄英文化祭", "A班 VS. B班", "重啟英雄實習", "超常解放戰線", "最終戰之後"];
+  function routeData() {
+    if (!state.route) state.route = ROUTE0.map(function (o) { return { id: uid() + Math.random().toString(36).slice(2, 4), kind: o.kind, title: o.title, text: o.text, key: o.key }; });
+    return state.route;
+  }
+  function arcsData() {
+    if (!state.arcs) state.arcs = ARCS0.map(function (n) { return { id: uid() + Math.random().toString(36).slice(2, 4), name: n, body: '', imgs: [] }; });
+    return state.arcs;
+  }
+  function arcHas(a) { return !!((a.body && a.body.trim()) || (a.imgs && a.imgs.length)); }
+  var rtDelArm = '';
+  function renderRoute() {
+    var ol = $('routeTl'); if (!ol || !state) return;
+    var R = routeData(); ol.innerHTML = '';
+    R.forEach(function (it, i) {
+      var li = document.createElement('li'); if (it.key) li.className = 'key';
+      li.innerHTML = '<div class="card"><span class="kind' + (it.key ? ' real' : '') + '"></span><h3></h3><p class="rt-t"></p></div>';
+      var c = li.firstChild;
+      editable(c.querySelector('.kind'), function () { return it.kind; }, function (v) { it.kind = v; });
+      editable(c.querySelector('h3'), function () { return it.title; }, function (v) { it.title = v; });
+      editable(c.querySelector('.rt-t'), function () { return it.text; }, function (v) { it.text = v; }, true);
+      if (editing) {
+        var t = document.createElement('div'); t.className = 'rt-tools';
+        [['↑', '往前', function () { if (i > 0) { R.splice(i - 1, 0, R.splice(i, 1)[0]); } }],
+         ['↓', '往後', function () { if (i < R.length - 1) { R.splice(i + 1, 0, R.splice(i, 1)[0]); } }],
+         [it.key ? '★ 重點' : '☆ 重點', '重點會變成實心的點', function () { it.key = !it.key; }],
+         ['＋ 在下面插入', '', function () { R.splice(i + 1, 0, { id: uid(), kind: '新階段', title: '標題', text: '內容', key: false }); }],
+         ['刪除', '按兩次', function () { if (rtDelArm !== it.id) { rtDelArm = it.id; status('再按一次「刪除」就會刪掉這段（可以用復原救回來）'); return false; } R.splice(i, 1); }]].forEach(function (d, k) {
+          var b = document.createElement('button'); b.type = 'button'; b.textContent = d[0]; if (d[1]) b.title = d[1]; if (k === 2 && it.key) b.className = 'on';
+          b.onclick = function () { if (d[2]() === false) return; markDirty(); renderRoute(); };
+          t.appendChild(b);
+        });
+        c.appendChild(t);
+      }
+      ol.appendChild(li);
+    });
+    // 主線
+    var A = arcsData(), L = $('arcList'); L.innerHTML = '';
+    A.forEach(function (a, i) {
+      var li = document.createElement('li'), b = document.createElement('button'); b.type = 'button';
+      var has = arcHas(a); b.className = 'arc-b' + (has ? ' has' : '');
+      b.innerHTML = '<span></span>' + (has ? '<i>✦</i>' : '');
+      b.firstChild.textContent = a.name || '（未命名）';
+      if (has || editing) b.onclick = function () { arcOpen(i); }; else b.tabIndex = -1;
+      li.appendChild(b); L.appendChild(li);
+    });
+    if (arcCur >= 0 && !$('arcDlg').hidden) arcRender();
+  }
+  var arcCur = -1, arcDelArm = '';
+  function arcOpen(i) { arcCur = i; $('arcDlg').hidden = false; document.body.style.overflow = 'hidden'; arcRender(); $('arcBox').scrollTop = 0; }
+  function arcClose() { $('arcDlg').hidden = true; document.body.style.overflow = ''; arcCur = -1; renderRoute(); }
+  function arcRender() {
+    var A = arcsData(), a = A[arcCur]; if (!a) { arcClose(); return; }
+    $('arcDlg').style.bottom = editing && !$('editBar').hidden ? $('editBar').offsetHeight + 'px' : '';
+    var box = $('arcBox'); box.innerHTML = '';
+    var x = document.createElement('button'); x.type = 'button'; x.className = 'arc-x'; x.textContent = '×'; x.setAttribute('aria-label', '關閉'); x.onclick = arcClose; box.appendChild(x);
+    var no = document.createElement('p'); no.className = 'arc-no'; no.textContent = 'CHAPTER ' + (arcCur < 9 ? '0' : '') + (arcCur + 1); box.appendChild(no);
+    var h = document.createElement('h2'); h.className = 'arc-name'; box.appendChild(h);
+    editable(h, function () { return a.name; }, function (v) { a.name = v; });
+    var body = document.createElement('p'); body.className = 'arc-body'; box.appendChild(body);
+    editable(body, function () { return a.body; }, function (v) { a.body = v; }, true);
+    a.imgs = a.imgs || [];
+    if (a.imgs.length) {
+      var g = document.createElement('div'); g.className = 'arc-imgs';
+      a.imgs.forEach(function (pth, k) {
+        var f = document.createElement('figure'); f.innerHTML = '<img alt="" loading="lazy" src="' + esc(src(pth)) + '">';
+        f.onclick = function () { $('lbImg').hidden = false; $('lbVid').hidden = true; $('lbImg').src = src(pth); $('lbCap').textContent = ''; $('lightbox').hidden = false; };
+        if (editing) { var d = document.createElement('button'); d.type = 'button'; d.className = 'ax'; d.textContent = '×'; d.title = '拿掉這張'; d.onclick = function (e) { e.stopPropagation(); a.imgs.splice(k, 1); markDirty(); arcRender(); }; f.appendChild(d); }
+        g.appendChild(f);
+      });
+      box.appendChild(g);
+    }
+    if (editing) {
+      var ed = document.createElement('div'); ed.className = 'arc-ed';
+      [['＋ 圖片', function () { libPick(function (ps) { a.imgs = a.imgs.concat(ps); arcRender(); renderRoute(); }); }],
+       ['↑ 往前', function () { if (arcCur > 0) { A.splice(arcCur - 1, 0, A.splice(arcCur, 1)[0]); arcCur--; markDirty(); renderRoute(); } }],
+       ['↓ 往後', function () { if (arcCur < A.length - 1) { A.splice(arcCur + 1, 0, A.splice(arcCur, 1)[0]); arcCur++; markDirty(); renderRoute(); } }],
+       ['刪除這章', function () { if (arcDelArm !== a.id) { arcDelArm = a.id; status('再按一次「刪除這章」就會刪掉（可以用復原救回來）'); return; } A.splice(arcCur, 1); markDirty(); arcClose(); }]].forEach(function (d) {
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = d[0]; b.onclick = d[1]; ed.appendChild(b);
+      });
+      box.appendChild(ed);
+    }
+    // 上一章／下一章（看的時候只跳有內容的）
+    var ok = function (j) { return editing || arcHas(A[j]); }, pv = -1, nx = -1, j;
+    for (j = arcCur - 1; j >= 0; j--) if (ok(j)) { pv = j; break; }
+    for (j = arcCur + 1; j < A.length; j++) if (ok(j)) { nx = j; break; }
+    if (pv >= 0 || nx >= 0) {
+      var nav = document.createElement('div'); nav.className = 'arc-nav';
+      var mk = function (k, lab) { var b = document.createElement('button'); b.type = 'button'; if (k < 0) { b.style.visibility = 'hidden'; } else { b.textContent = lab.replace('%', A[k].name || ''); b.onclick = function () { arcCur = k; arcRender(); box.scrollTop = 0; }; } nav.appendChild(b); };
+      mk(pv, '← %'); mk(nx, '% →'); box.appendChild(nav);
+    }
+  }
+  $('arcDlg').addEventListener('click', function (e) { if (e.target === this) arcClose(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('arcDlg').hidden && !e.target.closest('[contenteditable="true"],[contenteditable="plaintext-only"]')) arcClose(); });
+  $('rtAdd').addEventListener('click', function () { routeData().push({ id: uid(), kind: '新階段', title: '標題', text: '內容', key: false }); markDirty(); renderRoute(); });
+  $('arcAdd').addEventListener('click', function () { var A = arcsData(); A.push({ id: uid(), name: '新章節', body: '', imgs: [] }); markDirty(); renderRoute(); arcOpen(A.length - 1); });
   function newId() { return uid(); }
   $('libAddNovel').addEventListener('click', function () {
     var w = { id: newId(), type: 'novel', title: '新的小說', note: '', tags: [], blocks: [{ t: 'p', text: '在這裡開始寫……' }] };
