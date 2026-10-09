@@ -1054,7 +1054,7 @@ body:has(#gate:not([hidden])) .mp{display:none}
 .mp-list .acts button{width:22px;height:22px;border:0;border-radius:50%;background:#fff;color:#c9606d;cursor:pointer;font-size:11px}
 @media (max-width:560px){.mp{left:10px;bottom:10px;width:auto;max-width:calc(100vw - 20px)}.mp:not(.open) .mp-info{max-width:120px}}
 /* GitHub 版站主登入 */
-.gh-key{display:block;margin:10px auto 0;width:22px;height:22px;border:0;border-radius:50%;background:none;color:#d9c6c4;font-size:14px;line-height:1;cursor:pointer;opacity:.55}
+.gh-key{display:grid;place-items:center;margin:10px auto 0;width:22px;height:22px;padding:0;border:0;border-radius:50%;background:none;color:#d9c6c4;font-size:14px;line-height:1;cursor:pointer;opacity:.55}
 .gh-key:hover{opacity:1;color:#c9606d}
 .gh-key.on{opacity:1;color:#c9606d}
 .gh-dlg{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:16px;background:rgba(58,42,44,.35)}
@@ -1064,6 +1064,76 @@ body:has(#gate:not([hidden])) .mp{display:none}
 .gh-box input{width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #f1d2d6;border-radius:10px;font:inherit}
 .gh-err{color:#c9606d!important;min-height:1.2em;margin-top:8px!important}
 .gh-acts{display:flex;justify-content:flex-end;gap:8px}
+/* ---- 閱讀：書櫃 ---- */
+#library{--o:#e0844e;--p:#c9606d;--ink:#4a3a3c}
+.lib-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 18px}
+.lib-head h2{margin:0;font:400 clamp(2rem,5vw,3rem)/1 "DM Serif Display",serif;color:#7a4b51;letter-spacing:.04em}
+.lib-head h2 small{display:block;margin-top:6px;font:500 12px/1 var(--f-body);letter-spacing:.3em;color:#9a8587}
+.lib-add{display:flex;gap:8px}
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px}
+.lib-card{position:relative;display:grid;gap:8px;text-align:left;border:0;padding:0;background:none;cursor:pointer;color:var(--ink);font:inherit}
+.lib-cover{position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:linear-gradient(160deg,#fbeee6,#f6dfe0);box-shadow:0 0 0 4px #fff,0 8px 20px rgba(122,75,81,.16);transition:transform .2s}
+.lib-card:hover .lib-cover{transform:translateY(-4px) rotate(-1deg)}
+.lib-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.lib-cover .ph{position:absolute;inset:0;display:grid;place-items:center;font:400 2.2rem/1 "DM Serif Display",serif;color:#e8b9ad}
+.lib-kind{position:absolute;left:8px;top:8px;padding:3px 9px;border-radius:999px;background:#fff;font:700 10px/1 "Courier Prime",monospace;letter-spacing:.2em}
+.lib-kind.novel{color:var(--o)}.lib-kind.comic{color:var(--p)}
+.lib-card b{font-size:1rem;font-weight:700;letter-spacing:.06em}
+.lib-card small{font-size:.8rem;color:#9a8587;line-height:1.5}
+.lib-card [contenteditable]{outline:1px dashed #e0c9c6;outline-offset:2px;cursor:text}
+.lib-acts{display:flex;flex-wrap:wrap;gap:4px}
+.lib-acts button{padding:3px 8px;border:1px solid #f1d2d6;border-radius:999px;background:#fff;color:#c9606d;font-size:11px;cursor:pointer}
+.lib-empty{grid-column:1/-1;padding:40px 0;text-align:center;color:#9a8587}
+/* ---- 小說閱讀器 ---- */
+.nv{max-width:720px;margin:0 auto;padding:clamp(24px,5vw,56px) clamp(18px,5vw,64px) 40px;background:#fffdfb;border-radius:20px;box-shadow:0 0 0 1px rgba(122,75,81,.08),0 14px 34px rgba(122,75,81,.1);color:var(--ink)}
+.nv-back{border:0;background:none;padding:0;color:#9a8587;font:700 12px/1 "Courier Prime",var(--f-body);letter-spacing:.18em;cursor:pointer}
+.nv-back:hover{color:var(--p)}
+.nv-head{text-align:center;margin:26px 0 34px}
+.nv-kind{margin:0;font:700 11px/1 "Courier Prime",monospace;letter-spacing:.4em;color:var(--o)}
+.nv-title{margin:10px 0 8px;font:700 clamp(1.5rem,4vw,2.1rem)/1.3 "Noto Serif TC",var(--f-display);letter-spacing:.12em;color:#5a3a3e}
+.nv-note{margin:0;font-size:.88rem;color:#9a8587;white-space:pre-wrap}
+.nv-body{font:400 1.04rem/2.05 "Noto Serif TC",var(--f-body);letter-spacing:.04em}
+.nv-b{position:relative;margin:0 0 1.4em}
+.nv-p{white-space:pre-wrap;text-indent:0}
+.nv-h{margin:2.2em 0 1em;text-align:center;font:700 1.15rem/1.5 "Noto Serif TC",var(--f-display);letter-spacing:.18em;color:#7a4b51}
+.nv-hr{text-align:center;color:var(--p);letter-spacing:1.2em;padding-left:1.2em;margin:2em 0}
+.nv-fig{margin:2em -6%}
+.nv-fig img{display:block;width:100%;height:auto;border-radius:6px;cursor:zoom-in}
+.nv-fig figcaption{margin-top:8px;text-align:center;font-size:.8rem;color:#9a8587;letter-spacing:.08em}
+.nv-fig figcaption:empty{display:none}
+body.is-editing .nv-fig figcaption:empty{display:block;min-height:1.2em;border-bottom:1px dashed #e0c9c6}
+.nv-end{display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:3em;color:var(--p);font:700 12px/1 "Courier Prime",monospace;letter-spacing:.3em}
+/* 編輯 */
+.nv-b.ed{padding:6px 8px 6px 10px;border-radius:10px;outline:1px dashed #e8d3d0}
+.nv-b.ed:hover{outline-color:#c9606d}
+.nv-tools{position:absolute;right:4px;top:-12px;display:flex;gap:3px;z-index:3}
+.nv-tools button{width:24px;height:24px;border:1px solid #f1d2d6;border-radius:50%;background:#fff;color:#c9606d;font-size:12px;cursor:pointer;display:grid;place-items:center;padding:0}
+.nv-ins{display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin:-.6em 0 .8em;opacity:.35;transition:opacity .15s}
+.nv-ins:hover,.nv-ins:focus-within{opacity:1}
+.nv-ins button{padding:2px 9px;border:1px dashed #e0c9c6;border-radius:999px;background:#fff;color:#9a8587;font-size:11px;cursor:pointer}
+.nv-ins button:hover{border-color:#c9606d;color:#c9606d}
+.nv [contenteditable]{cursor:text}
+body.is-editing .nv-p:empty::before{content:"（點這裡輸入文字）";opacity:.4}
+body.is-editing .nv-h:empty::before{content:"（小標題）";opacity:.4}
+/* ---- 漫畫閱讀器 ---- */
+.cm{position:fixed;inset:0;z-index:150;background:#2b2224;color:#fff;display:flex;flex-direction:column}
+.cm-top{display:flex;align-items:center;gap:12px;padding:10px 14px;font-size:.9rem}
+.cm-top b{flex:1;font-weight:600;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cm-top span{font:400 12px/1 "Courier Prime",monospace;letter-spacing:.2em;opacity:.8}
+.cm-x{width:32px;height:32px;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;cursor:pointer}
+.cm-track{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior:contain}
+.cm-track::-webkit-scrollbar{display:none}
+.cm-track.rtl{direction:rtl}
+.cm-pg{flex:0 0 100%;height:100%;scroll-snap-align:center;scroll-snap-stop:always;display:grid;place-items:center;padding:0 8px 10px;box-sizing:border-box}
+.cm-pg img{max-width:100%;max-height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none}
+.cm-pg.empty{color:rgba(255,255,255,.6);font-size:.9rem}
+.cm-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:64px;border:0;background:rgba(255,255,255,.08);color:#fff;font-size:28px;cursor:pointer;border-radius:10px}
+.cm-nav.prev{left:10px}.cm-nav.next{right:10px}
+.cm-nav:hover{background:rgba(255,255,255,.18)}
+@media (hover:none){.cm-nav{display:none}}
+.cm-edit{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:8px 10px 12px;background:rgba(0,0,0,.25)}
+.cm-edit button{padding:5px 12px;border:1px solid rgba(255,255,255,.3);border-radius:999px;background:none;color:#fff;font-size:12px;cursor:pointer}
+.cm-edit button:hover{background:rgba(255,255,255,.12)}
 /*cover*/
 .dos-back{display:inline-block;margin:0 0 12px;font:700 12px/1 "Courier Prime",var(--f-body);letter-spacing:.2em;color:#9a8587;text-decoration:none}
 .dos-back:hover{color:var(--ac)}
@@ -1183,6 +1253,7 @@ body:has(#gate:not([hidden])) .mp{display:none}
         <a href="#journal">首頁</a>
         <a href="#cover">角色介紹</a>
         <a href="#history">Route</a>
+        <a href="#library">閱讀</a>
         <a href="#gallery">圖庫</a>
         <button type="button" class="navedit" id="navEdit" hidden>✎ 編輯</button>
       </nav>
@@ -1605,6 +1676,20 @@ body:has(#gate:not([hidden])) .mp{display:none}
       <p class="empty" id="gEmpty" hidden>圖庫還是空的。進入編輯模式就能新增圖片。</p>
     </section>
 
+    <!-- 閱讀：小說／漫畫 -->
+    <section class="page" id="library" data-page hidden>
+      <div class="lib-list" id="libList">
+        <header class="lib-head"><h2>LIBRARY<small>小說・漫畫</small></h2>
+          <div class="lib-add edit-only" hidden><button type="button" class="btn small" id="libAddNovel">＋ 新增小說</button><button type="button" class="btn small" id="libAddComic">＋ 新增漫畫</button></div></header>
+        <div class="lib-grid" id="libGrid"></div>
+      </div>
+      <article class="nv" id="novel" hidden>
+        <button type="button" class="nv-back" data-back>← 回到書櫃</button>
+        <header class="nv-head"><p class="nv-kind">NOVEL</p><h2 class="nv-title" id="nvTitle"></h2><p class="nv-note" id="nvNote"></p></header>
+        <div class="nv-body" id="nvBody"></div>
+        <footer class="nv-end"><span>✦ END ✦</span><button type="button" class="nv-back" data-back>← 回到書櫃</button></footer>
+      </article>
+    </section>
   </main>
 </div>
 
@@ -1703,6 +1788,13 @@ body:has(#gate:not([hidden])) .mp{display:none}
 <input type="file" id="musicPick" accept="audio/*,.mp3,.m4a,.ogg,.wav" multiple hidden>
 <img id="mia" class="mia" src="cursor-pair.png" alt="" aria-hidden="true" hidden>
 <input type="color" id="colorPick" hidden>
+<div class="cm" id="comic" hidden role="dialog" aria-label="漫畫閱讀">
+  <div class="cm-top"><button type="button" class="cm-x" id="cmClose" aria-label="關閉">✕</button><b id="cmTitle"></b><span id="cmPage"></span></div>
+  <div class="cm-track" id="cmTrack"></div>
+  <button type="button" class="cm-nav prev" id="cmPrev" aria-label="上一頁">‹</button><button type="button" class="cm-nav next" id="cmNext" aria-label="下一頁">›</button>
+  <div class="cm-edit" id="cmEdit" hidden></div>
+</div>
+<input type="file" id="libPick" accept="image/*" multiple hidden>
 <input type="file" id="multiPick" accept="image/*,video/mp4,video/webm" multiple hidden>
 <div class="modal" id="creditDlg" hidden>
   <div class="modal-card cd-card" role="dialog" aria-label="繪師署名">
@@ -1739,7 +1831,7 @@ body:has(#gate:not([hidden])) .mp{display:none}
 <footer>
   © 2026 KATSUMIA ｜ 爆豪勝己 × 緋垣未亜<br>
   <button type="button" id="toGate">回到入口</button>
-  <button type="button" id="ghKey" class="gh-key" title="站主登入" aria-label="站主登入" hidden>⚿</button>
+  <button type="button" id="ghKey" class="gh-key" title="站主登入" aria-label="站主登入" hidden><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M21 12v2"/></svg></button>
 </footer>
 <div class="gh-dlg" id="ghDlg" hidden role="dialog" aria-label="站主登入">
   <div class="gh-box">
@@ -1766,6 +1858,7 @@ body:has(#gate:not([hidden])) .mp{display:none}
   var links=[].slice.call(document.querySelectorAll('nav a'));
   function route(){
     var id=(location.hash||'#journal').slice(1);
+    var rd=/^read-(.+)$/.exec(id); if(rd){id='library';setTimeout(function(){window.__cbOpenRead&&window.__cbOpenRead(rd[1])},0)} else if(id==='library'&&window.__cbCloseRead){window.__cbCloseRead()}
     if(id==='home'||!pages.some(function(p){return p.id===id})) id='journal';
     pages.forEach(function(p){p.hidden=p.id!==id});
     document.querySelector('main').classList.toggle('wide',id==='home'||id==='journal');

@@ -48,6 +48,7 @@
     state.gallery.forEach(function (g) { u[g.src] = 1; });
     (state.wardrobe || []).forEach(function (o) { (o.imgs || []).forEach(function (p) { u[p] = 1; }); });
     (state.music || []).forEach(function (t) { if (t.src) u[t.src] = 1; });
+    (state.library || []).forEach(function (w) { if (w.cover) u[w.cover] = 1; (w.pages || []).forEach(function (p) { u[p] = 1; }); (w.blocks || []).forEach(function (b) { if (b.src) u[b.src] = 1; }); });
     Object.keys(u).forEach(function (k) { if (k.indexOf('img/') !== 0 && k.indexOf('music/') !== 0) delete u[k]; });
     return u;
   }
@@ -1208,7 +1209,7 @@
     sheetData().c[swTarget.dataset.c] = this.value; markDirty();
   });
 
-  function renderAll() { if (!state) return; renderSheet(); renderSlots(); renderBoard(); renderGallery(); renderLook(); renderMusic(); }
+  function renderAll() { if (!state) return; renderSheet(); renderSlots(); renderBoard(); renderGallery(); renderLook(); renderMusic(); renderLib(); }
 
   // ---------- 編輯模式 ----------
   function setEditing(on) {
@@ -1366,6 +1367,174 @@
       setTimeout(function () { b.remove(); }, 700);
     });
   })();
+
+  // ---------- 閱讀：小說（往下捲、可穿插配圖）／漫畫（左右滑） ----------
+  function lib() { if (!state.library) state.library = []; return state.library; }
+  function libFind(id) { return lib().filter(function (w) { return w.id === id; })[0]; }
+  function coverOf(w) {
+    if (w.cover) return w.cover;
+    if (w.type === 'comic') return (w.pages || [])[0];
+    var im = (w.blocks || []).filter(function (b) { return b.t === 'img' && b.src; })[0]; return im && im.src;
+  }
+  var libPickCb = null, libDelArm = '', rdOpen = null;
+  function libPick(cb) { libPickCb = cb; $('libPick').click(); }
+  $('libPick').addEventListener('change', function (e) {
+    var files = [].slice.call(e.target.files), cb = libPickCb; e.target.value = ''; libPickCb = null;
+    if (!files.length || !cb) return;
+    status('處理圖片中…'); var out = [];
+    files.reduce(function (pr, f) { return pr.then(function () { return addFile(f).then(function (p) { out.push(p); }, function (er) { status((er && er.msg) || '有檔案讀不了'); }); }); }, Promise.resolve())
+      .then(function () { if (out.length) { cb(out); markDirty(); status('加好了，記得按「儲存」'); } });
+  });
+  function editable(el, get, set, multi) {
+    el.textContent = get() || '';
+    if (!editing) { el.removeAttribute('contenteditable'); return; }
+    try { el.contentEditable = 'plaintext-only'; } catch (er) { el.contentEditable = 'true'; }
+    el.oninput = function () { set(el.innerText.replace(/\n+$/, '')); markDirty(); };
+    el.onclick = function (e) { e.stopPropagation(); };
+    if (!multi) el.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } };
+  }
+  function renderLib() {
+    if (!$('libGrid') || !state) return;
+    var L = lib(), g = $('libGrid'); g.innerHTML = '';
+    if (!L.length) g.innerHTML = '<p class="lib-empty">' + (editing ? '按右上角「＋ 新增小說／漫畫」開始放作品' : '作品準備中 ♡') + '</p>';
+    L.forEach(function (w, i) {
+      var c = document.createElement('div'); c.className = 'lib-card'; c.tabIndex = 0; c.setAttribute('role', 'button');
+      var cv = coverOf(w);
+      c.innerHTML = '<div class="lib-cover">' + (cv ? '<img alt="" loading="lazy" src="' + esc(src(cv)) + '">' : '<span class="ph">' + (w.type === 'comic' ? 'COMIC' : 'NOVEL') + '</span>') +
+        '<span class="lib-kind ' + w.type + '">' + (w.type === 'comic' ? '漫畫' : '小說') + '</span></div><b></b><small></small>';
+      editable(c.querySelector('b'), function () { return w.title; }, function (v) { w.title = v; });
+      editable(c.querySelector('small'), function () { return w.note; }, function (v) { w.note = v; }, true);
+      var go = function () { location.hash = 'read-' + w.id; };
+      c.addEventListener('click', function (e) { if (e.target.closest('.lib-acts,[contenteditable]')) return; go(); });
+      c.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.target.closest('[contenteditable]')) go(); });
+      if (editing) {
+        var a = document.createElement('div'); a.className = 'lib-acts';
+        [['換封面', function () { libPick(function (ps) { w.cover = ps[0]; renderLib(); }); }],
+         ['←', function () { if (i > 0) { L.splice(i - 1, 0, L.splice(i, 1)[0]); markDirty(); renderLib(); } }],
+         ['→', function () { if (i < L.length - 1) { L.splice(i + 1, 0, L.splice(i, 1)[0]); markDirty(); renderLib(); } }],
+         ['刪除', function () { if (libDelArm !== w.id) { libDelArm = w.id; status('再按一次「刪除」就會刪掉這部作品（可以用復原救回來）'); return; } libDelArm = ''; L.splice(i, 1); markDirty(); renderLib(); }]].forEach(function (t) {
+          var b = document.createElement('button'); b.type = 'button'; b.textContent = t[0]; b.onclick = function (e) { e.stopPropagation(); t[1](); }; a.appendChild(b);
+        });
+        c.appendChild(a);
+      }
+      g.appendChild(c);
+    });
+    if (rdOpen) { var w = libFind(rdOpen); if (w && w.type === 'novel') renderNovel(w); if (w && w.type === 'comic' && !$('comic').hidden) renderComic(w, true); }
+  }
+  function newId() { return uid(); }
+  $('libAddNovel').addEventListener('click', function () {
+    var w = { id: newId(), type: 'novel', title: '新的小說', note: '', blocks: [{ t: 'p', text: '在這裡開始寫……' }] };
+    lib().push(w); markDirty(); location.hash = 'read-' + w.id;
+  });
+  $('libAddComic').addEventListener('click', function () {
+    var w = { id: newId(), type: 'comic', title: '新的漫畫', note: '', pages: [], dir: 'ltr' };
+    lib().push(w); markDirty(); renderLib(); location.hash = 'read-' + w.id;
+  });
+  // ---- 小說 ----
+  function renderNovel(w) {
+    editable($('nvTitle'), function () { return w.title; }, function (v) { w.title = v; });
+    editable($('nvNote'), function () { return w.note; }, function (v) { w.note = v; }, true);
+    var body = $('nvBody'); body.innerHTML = ''; var B = w.blocks = w.blocks || [];
+    function ins(at) {
+      var bar = document.createElement('div'); bar.className = 'nv-ins';
+      [['＋ 文字', function () { B.splice(at, 0, { t: 'p', text: '' }); }], ['＋ 小標', function () { B.splice(at, 0, { t: 'h', text: '' }); }],
+       ['＋ 配圖', null], ['＋ 分隔 ✦', function () { B.splice(at, 0, { t: 'hr' }); }]].forEach(function (t) {
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = t[0];
+        b.onclick = function () {
+          if (!t[1]) { libPick(function (ps) { B.splice.apply(B, [at, 0].concat(ps.map(function (p) { return { t: 'img', src: p, cap: '' }; }))); renderNovel(w); }); return; }
+          t[1](); markDirty(); renderNovel(w); var el = body.querySelectorAll('[data-i]')[at]; if (el) { var f = el.querySelector('[contenteditable]'); if (f) f.focus(); }
+        };
+        bar.appendChild(b);
+      });
+      body.appendChild(bar);
+    }
+    B.forEach(function (b, i) {
+      if (editing) ins(i);
+      var el;
+      if (b.t === 'img') {
+        el = document.createElement('figure'); el.className = 'nv-b nv-fig';
+        el.innerHTML = b.src ? '<img alt="" loading="lazy" src="' + esc(src(b.src)) + '">' : '';
+        var cap = document.createElement('figcaption'); el.appendChild(cap);
+        editable(cap, function () { return b.cap; }, function (v) { b.cap = v; });
+        var im = el.querySelector('img');
+        if (im) im.onclick = function () {
+          if (editing) { libPick(function (ps) { b.src = ps[0]; renderNovel(w); }); return; }
+          $('lbImg').hidden = false; $('lbVid').hidden = true; $('lbImg').src = src(b.src); $('lbCap').textContent = b.cap || ''; $('lightbox').hidden = false;
+        };
+        if (im && editing) im.title = '點一下換圖';
+      } else if (b.t === 'hr') {
+        el = document.createElement('div'); el.className = 'nv-b nv-hr'; el.textContent = '✦ ✦ ✦';
+      } else {
+        el = document.createElement(b.t === 'h' ? 'h3' : 'div'); el.className = 'nv-b ' + (b.t === 'h' ? 'nv-h' : 'nv-p');
+        editable(el, function () { return b.text; }, function (v) { b.text = v; }, b.t === 'p');
+        if (editing && !b.text) el.dataset.ph = '1';
+      }
+      el.dataset.i = i;
+      if (editing) {
+        el.classList.add('ed');
+        var tl = document.createElement('div'); tl.className = 'nv-tools';
+        [['↑', '往上', function () { if (i > 0) B.splice(i - 1, 0, B.splice(i, 1)[0]); }],
+         ['↓', '往下', function () { if (i < B.length - 1) B.splice(i + 1, 0, B.splice(i, 1)[0]); }],
+         ['×', '刪除這段', function () { B.splice(i, 1); }]].forEach(function (t) {
+          var bt = document.createElement('button'); bt.type = 'button'; bt.textContent = t[0]; bt.title = t[1]; bt.contentEditable = 'false';
+          bt.onclick = function (e) { e.stopPropagation(); t[2](); markDirty(); renderNovel(w); };
+          tl.appendChild(bt);
+        });
+        // 工具列放在外層，避免被當成文字內容存進去
+        var wrap = document.createElement('div'); wrap.style.position = 'relative'; wrap.dataset.i = i; el.removeAttribute('data-i');
+        wrap.appendChild(el); wrap.appendChild(tl); body.appendChild(wrap);
+      } else body.appendChild(el);
+    });
+    if (editing) ins(B.length);
+  }
+  // ---- 漫畫 ----
+  var cmW = null;
+  function cmIdx() { var t = $('cmTrack'); return Math.round(Math.abs(t.scrollLeft) / (t.clientWidth || 1)); }
+  function cmGo(d) { var t = $('cmTrack'); var rtl = t.classList.contains('rtl'); t.scrollBy({ left: (rtl ? -d : d) * t.clientWidth, behavior: 'smooth' }); }
+  function cmCount() { var P = (cmW && cmW.pages) || []; $('cmPage').textContent = P.length ? (Math.min(cmIdx(), P.length - 1) + 1) + ' / ' + P.length : ''; }
+  function renderComic(w, keep) {
+    cmW = w; var t = $('cmTrack'), at = keep ? cmIdx() : 0, P = w.pages = w.pages || [];
+    $('cmTitle').textContent = w.title || '';
+    t.classList.toggle('rtl', w.dir === 'rtl'); t.innerHTML = '';
+    if (!P.length) t.innerHTML = '<div class="cm-pg empty">' + (editing ? '按下方「＋ 加頁面」放漫畫圖（可以一次選很多張）' : '這部漫畫還沒有頁面') + '</div>';
+    P.forEach(function (p, i) { var d = document.createElement('div'); d.className = 'cm-pg'; d.innerHTML = '<img alt="第 ' + (i + 1) + ' 頁" ' + (i > 2 ? 'loading="lazy" ' : '') + 'src="' + esc(src(p)) + '">'; t.appendChild(d); });
+    requestAnimationFrame(function () { t.scrollLeft = (w.dir === 'rtl' ? -1 : 1) * at * t.clientWidth; cmCount(); });
+    $('comic').style.bottom = editing && $('editBar') ? $('editBar').offsetHeight + 'px' : ''; // 編輯時把下方的編輯列留出來（才按得到儲存）
+    var ed = $('cmEdit'); ed.hidden = !editing; ed.innerHTML = '';
+    if (editing) {
+      [['＋ 加頁面（加在最後）', function () { libPick(function (ps) { P.push.apply(P, ps); renderComic(w, true); }); }],
+       ['在這頁前面插入', function () { var i = cmIdx(); libPick(function (ps) { P.splice.apply(P, [Math.min(i, P.length), 0].concat(ps)); renderComic(w, true); }); }],
+       ['換這頁的圖', function () { var i = cmIdx(); if (!P[i]) return; libPick(function (ps) { P[i] = ps[0]; renderComic(w, true); }); }],
+       ['往前移', function () { var i = cmIdx(); if (i > 0) { P.splice(i - 1, 0, P.splice(i, 1)[0]); markDirty(); renderComic(w, true); cmGo(-1); } }],
+       ['往後移', function () { var i = cmIdx(); if (i < P.length - 1) { P.splice(i + 1, 0, P.splice(i, 1)[0]); markDirty(); renderComic(w, true); cmGo(1); } }],
+       ['刪除這頁', function () { var i = cmIdx(); if (!P[i]) return; if (libDelArm !== 'pg' + i) { libDelArm = 'pg' + i; status('再按一次「刪除這頁」就會刪掉'); return; } libDelArm = ''; P.splice(i, 1); markDirty(); renderComic(w, true); }],
+       ['設為封面', function () { var i = cmIdx(); if (P[i]) { w.cover = P[i]; markDirty(); status('已設為封面'); } }],
+       [w.dir === 'rtl' ? '翻頁方向：右 → 左（日漫）' : '翻頁方向：左 → 右', function () { w.dir = w.dir === 'rtl' ? 'ltr' : 'rtl'; markDirty(); renderComic(w); }]].forEach(function (x) {
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = x[0]; b.onclick = x[1]; ed.appendChild(b);
+      });
+    }
+  }
+  $('cmTrack').addEventListener('scroll', function () { cmCount(); }, { passive: true });
+  $('cmPrev').addEventListener('click', function () { cmGo(cmW && cmW.dir === 'rtl' ? 1 : -1); });
+  $('cmNext').addEventListener('click', function () { cmGo(cmW && cmW.dir === 'rtl' ? -1 : 1); });
+  $('cmClose').addEventListener('click', function () { location.hash = 'library'; });
+  document.addEventListener('keydown', function (e) {
+    if ($('comic').hidden || e.target.closest('[contenteditable],input,textarea')) return;
+    if (e.key === 'ArrowRight') { e.preventDefault(); cmGo(cmW && cmW.dir === 'rtl' ? -1 : 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); cmGo(cmW && cmW.dir === 'rtl' ? 1 : -1); }
+    if (e.key === 'Escape') location.hash = 'library';
+  });
+  [].forEach.call(document.querySelectorAll('#novel [data-back]'), function (b) { b.addEventListener('click', function () { location.hash = 'library'; }); });
+  function openRead(id) {
+    if (!state) { setTimeout(function () { openRead(id); }, 200); return; }
+    var w = libFind(id); if (!w) { location.hash = 'library'; return; }
+    rdOpen = id;
+    if (w.type === 'comic') { $('libList').hidden = false; $('novel').hidden = true; $('comic').hidden = false; document.body.style.overflow = 'hidden'; renderComic(w); }
+    else { $('comic').hidden = true; document.body.style.overflow = ''; $('libList').hidden = true; $('novel').hidden = false; renderNovel(w); window.scrollTo(0, 0); }
+  }
+  function closeRead() { rdOpen = null; cmW = null; $('comic').hidden = true; document.body.style.overflow = ''; $('novel').hidden = true; $('libList').hidden = false; if (state) renderLib(); }
+  window.__cbOpenRead = openRead; window.__cbCloseRead = closeRead;
+  window.addEventListener('hashchange', function () { if (!/^#(read-|library)/.test(location.hash)) { $('comic').hidden = true; document.body.style.overflow = ''; } });
 
   // ---------- 載入 ----------
   fetch('data/state.json', { cache: 'no-store' })
