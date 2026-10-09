@@ -1290,6 +1290,18 @@ body.so-active,body.so-active *{cursor:grabbing!important;user-select:none}
 .gv-v.add{font-size:20px;color:#c9606d;background:#fff;border:1.5px dashed #e8c4c8;box-shadow:none}
 .gv-vt{position:absolute;right:-6px;top:-6px;display:flex;gap:2px}
 .gv-vt i{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#fff;color:#c9606d;font-style:normal;font-size:11px;box-shadow:0 1px 4px rgba(74,58,60,.25)}
+/* 手機：插圖縮圖改成一排三張的小格 */
+@media (max-width:640px){
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .grid figure .g-th{border-radius:12px}
+  .g-alts{right:4px;bottom:4px;padding:2px 5px 2px 4px;font-size:9px}
+  .g-alts svg{width:9px;height:9px}
+  .g-ed{left:3px;right:3px;top:3px;gap:2px}
+  .g-ed button,.g-ed .so-h{width:22px;height:22px;font-size:12px}
+  .pan-bar{left:2px;right:2px;bottom:2px;padding:3px;gap:2px}
+  .pan-bar span{display:none}
+  .pan-bar button{min-width:0;padding:2px 6px;font-size:11px}
+}
 /*cover*/
 .dos-back{display:inline-block;margin:0 0 12px;font:700 12px/1 "Courier Prime",var(--f-body);letter-spacing:.2em;color:#9a8587;text-decoration:none}
 .dos-back:hover{color:var(--ac)}
@@ -2044,7 +2056,7 @@ body.so-active,body.so-active *{cursor:grabbing!important;user-select:none}
   window.__cbRoute=route;
 })();
 </script>
-<script src="app.js?v=1791570852"></script>
+<script src="app.js?v=1791571290"></script>
 
 </body>
 </html>
