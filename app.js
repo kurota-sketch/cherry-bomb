@@ -1579,6 +1579,8 @@
   }
   function closeRead() { rdOpen = null; cmW = null; $('comic').hidden = true; document.body.style.overflow = ''; $('novel').hidden = true; $('libList').hidden = false; if (state) renderLib(); }
   window.__cbOpenRead = openRead; window.__cbCloseRead = closeRead;
+  // 直接用連結打開某部作品（#read-xxx）時，等資料載入後自動打開
+  (function () { var m = /^#read-(.+)$/.exec(location.hash); var inn = false; try { inn = sessionStorage.getItem('cb-in') === '1'; } catch (er) {} if (m && inn) openRead(decodeURIComponent(m[1])); })();
   window.addEventListener('hashchange', function () { if (!/^#(read-|library)/.test(location.hash)) { $('comic').hidden = true; document.body.style.overflow = ''; } });
 
   // ---------- 載入 ----------
