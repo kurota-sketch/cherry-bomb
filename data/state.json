@@ -1,0 +1,800 @@
+{
+ "v": 2,
+ "canvasH": 86,
+ "slots": {
+  "mia": "img/muzpe1i1b0up.webp",
+  "gate": "img/muzqu3yl8hly.webp",
+  "sheet-pair": "img/muzqz556kgq5.webp",
+  "sheet-k-face": "img/muzr27baht6l.webp",
+  "sheet-m-face": "img/muzr37zi0h8n.webp",
+  "sheet-k-full": "img/muzr8rl7w477.webp",
+  "sheet-m-full": "img/muzrc0jku9d9.webp",
+  "sheet-k-full2": "img/mv0qn6rycgwh.webp",
+  "sheet-m-full2": "img/muzt75mfoxlv.webp",
+  "anc-k1": "img/muzu3jmze0uf.webp",
+  "katsuki": "img/mv0tukipfwet.webp",
+  "lens-k2": "img/mv0xp04pau89.webp",
+  "lens-k1": "img/mv0zw69faa91.webp",
+  "lens-m1": "img/mv100nw1hxmn.webp",
+  "lens-m2": "img/mv0xrfkjevma.webp",
+  "cover-pair": "img/mv10vssc5fdu.webp",
+  "mia-persona": "img/mv11g529b4og.webp",
+  "mia-quirk": "img/mv11g9xwnqnr.webp",
+  "mia-mascot": "img/mv11ilvlcqn7.webp",
+  "anc-k2": "img/mv11qnpavxq1.webp",
+  "anc-k3": "img/mv11v0qcl6nt.webp",
+  "anc-m1": "img/mv11wsr9587m.webp",
+  "anc-m2": "img/mv11xisx6fyz.webp",
+  "anc-m3": "img/mv1204tb343a.webp"
+ },
+ "gallery": [],
+ "collage": [
+  {
+   "id": "logo",
+   "type": "img",
+   "src": "logo.png",
+   "x": 21.3,
+   "y": 64.2,
+   "w": 49.5,
+   "r": -5,
+   "z": 48,
+   "style": "die",
+   "ar": 1.834862385321101,
+   "text": "明明臉很好看啊，為什麼不好好用臉啊？"
+  },
+  {
+   "id": "w-timer",
+   "type": "widget",
+   "key": "timer",
+   "x": 69.1,
+   "y": 2.2,
+   "w": 29.9,
+   "r": 4,
+   "z": 0
+  },
+  {
+   "id": "n1",
+   "type": "note",
+   "text": "KATSUMIA",
+   "x": 80,
+   "y": 64,
+   "w": 13,
+   "r": 7,
+   "z": 49,
+   "color": "cherry"
+  },
+  {
+   "id": "s1",
+   "type": "sticker",
+   "shape": "heart",
+   "color": "cherry",
+   "x": 24.9,
+   "y": 3.9,
+   "w": 4.2,
+   "r": -12,
+   "z": 54
+  },
+  {
+   "id": "s2",
+   "type": "sticker",
+   "shape": "sparkle",
+   "color": "apricot",
+   "x": 29.6,
+   "y": 9.9,
+   "w": 3.2,
+   "r": 0,
+   "z": 54
+  },
+  {
+   "id": "s3",
+   "type": "sticker",
+   "shape": "pow",
+   "color": "apricot",
+   "x": 61.8,
+   "y": 58.5,
+   "w": 5,
+   "r": 10,
+   "z": 54
+  },
+  {
+   "id": "s4",
+   "type": "sticker",
+   "shape": "star",
+   "color": "blush",
+   "x": 23.1,
+   "y": 54.4,
+   "w": 3.6,
+   "r": 10,
+   "z": 54
+  },
+  {
+   "id": "s5",
+   "type": "sticker",
+   "shape": "flower",
+   "color": "blush",
+   "x": 18.1,
+   "y": 36.9,
+   "w": 4,
+   "r": 0,
+   "z": 54
+  },
+  {
+   "type": "img",
+   "src": "img/muzoms3xuab2.gif",
+   "w": 29.7,
+   "style": "die",
+   "id": "muzoms3y72n0",
+   "x": 64.8,
+   "y": 63.9,
+   "z": 14,
+   "r": -5,
+   "ar": 1.1666666666666667
+  },
+  {
+   "type": "img",
+   "src": "img/muzoohxsfdyw.webp",
+   "w": 47.5,
+   "style": "die",
+   "id": "muzoohxs10nq",
+   "x": 18,
+   "y": 11.3,
+   "z": 30,
+   "r": -3,
+   "ar": 0.706875
+  },
+  {
+   "type": "img",
+   "src": "img/mv0vvjuy6vv8.webp",
+   "w": 30.9,
+   "style": "die",
+   "id": "muzpqnge8x3r",
+   "x": -0.3,
+   "y": 0,
+   "z": 11,
+   "r": -7,
+   "ar": 0.706875
+  },
+  {
+   "type": "img",
+   "src": "img/muzpsprd3vzg.webp",
+   "w": 51,
+   "style": "die",
+   "id": "muzpsprd6kcg",
+   "x": 53.4,
+   "y": 25.9,
+   "z": 29,
+   "r": 11,
+   "ar": 1.3333333333333333
+  },
+  {
+   "type": "sticker",
+   "shape": "sparkle",
+   "color": "apricot",
+   "w": 4.5,
+   "id": "muzq4derw4s8",
+   "x": 61,
+   "y": 46.5,
+   "z": 54,
+   "r": -16
+  },
+  {
+   "id": "fx-bubble",
+   "type": "sticker",
+   "shape": "bubble",
+   "color": "cherry",
+   "x": 39.8,
+   "y": 7.9,
+   "w": 6.5,
+   "r": -11,
+   "z": 55
+  },
+  {
+   "id": "fx-pow",
+   "type": "sticker",
+   "shape": "pow",
+   "color": "apricot",
+   "x": 46,
+   "y": 2.3,
+   "w": 6,
+   "r": 12,
+   "z": 55
+  },
+  {
+   "id": "fx-pow2",
+   "type": "sticker",
+   "shape": "pow",
+   "color": "cherry",
+   "x": 87,
+   "y": 30.2,
+   "w": 6.5,
+   "r": -14,
+   "z": 55
+  },
+  {
+   "id": "fx-puff",
+   "type": "sticker",
+   "shape": "puff",
+   "color": "apricot",
+   "x": 26,
+   "y": 93.6,
+   "w": 4,
+   "r": -10,
+   "z": 55
+  },
+  {
+   "id": "fx-ribbon",
+   "type": "sticker",
+   "shape": "ribbon",
+   "color": "cherry",
+   "x": 0.2,
+   "y": 33.8,
+   "w": 7,
+   "r": 20,
+   "z": 55
+  },
+  {
+   "id": "fx-dots",
+   "type": "sticker",
+   "shape": "dots",
+   "color": "cherry",
+   "x": 61,
+   "y": 94.2,
+   "w": 6.5,
+   "r": -4,
+   "z": 55
+  },
+  {
+   "id": "fx-hearts",
+   "type": "sticker",
+   "shape": "hearts",
+   "color": "cherry",
+   "x": 92,
+   "y": 54.7,
+   "w": 5,
+   "r": 8,
+   "z": 55
+  },
+  {
+   "id": "fx-spark2",
+   "type": "sticker",
+   "shape": "sparkle",
+   "color": "apricot",
+   "x": 96,
+   "y": 25.6,
+   "w": 3,
+   "r": 0,
+   "z": 55
+  },
+  {
+   "id": "fx-star2",
+   "type": "sticker",
+   "shape": "puff",
+   "color": "blush",
+   "x": 14.5,
+   "y": 60.5,
+   "w": 3.6,
+   "r": 14,
+   "z": 55
+  },
+  {
+   "id": "fx-heart2",
+   "type": "sticker",
+   "shape": "heart",
+   "color": "blush",
+   "x": 3.5,
+   "y": 94.8,
+   "w": 3.8,
+   "r": 10,
+   "z": 55
+  },
+  {
+   "id": "fx-spark3",
+   "type": "sticker",
+   "shape": "sparkle",
+   "color": "cherry",
+   "x": 76,
+   "y": 32,
+   "w": 2.6,
+   "r": 0,
+   "z": 55
+  },
+  {
+   "type": "img",
+   "src": "img/mv0vme6svw6t.webp",
+   "w": 14.3,
+   "style": "die",
+   "id": "mv0vme6sgvv3",
+   "x": 72,
+   "y": 20.1,
+   "z": 1,
+   "r": 3,
+   "ar": 1.3769363166953528
+  },
+  {
+   "type": "bit",
+   "text": "2024.12.04",
+   "style": "stamp",
+   "color": "cherry",
+   "w": 10.1,
+   "id": "mv0voa0bhzfl",
+   "x": 4.7,
+   "y": 46.5,
+   "z": 60,
+   "r": 13,
+   "_t": "KATSUMIA ♡ since 2024"
+  },
+  {
+   "type": "img",
+   "src": "img/mv0vp2znn57b.webp",
+   "w": 29.6,
+   "style": "die",
+   "id": "mv0vp2znvikg",
+   "x": -2.5,
+   "y": 57.4,
+   "z": 58,
+   "r": -3,
+   "ar": 0.7513935340022296
+  },
+  {
+   "type": "img",
+   "src": "img/mv0vqyifp3o6.webp",
+   "w": 27.4,
+   "style": "die",
+   "id": "mv0vqyifej6r",
+   "x": 46.3,
+   "y": -0.1,
+   "z": 3,
+   "r": 6,
+   "ar": 0.7513935340022296
+  },
+  {
+   "type": "sticker",
+   "shape": "star",
+   "color": "apricot",
+   "w": 5,
+   "id": "mv0vskad6rg2",
+   "x": 0.1,
+   "y": 68.8,
+   "z": 59,
+   "r": -15
+  }
+ ],
+ "paper": "grid",
+ "sheet": {
+  "t": {
+   "k-quote": "暴言自信家",
+   "m-quote": "皮一下很開心",
+   "m-blood": "O 型",
+   "k-home": "靜岡一帶",
+   "m-p5": "士傑 → 雄英 1-A",
+   "m-quirk": "操血：操控自己的血",
+   "k-nh": "眼角爆炸上翹的紅眼、金色刺刺頭",
+   "k-feat": "手掌厚實粗糙，很會做菜",
+   "m-n1": "川菜、烏龍麵、奶茶、逛街、時尚",
+   "k-dis": "用字遣詞",
+   "m-sym": "血液、小惡魔、櫻桃味",
+   "k-t1": "脾氣差",
+   "k-t2": "自尊心強",
+   "k-t4": "心思細膩",
+   "k-quirk": "爆破：手掌的汗可以轉為硝酸甘油並引爆",
+   "anc-k1": "鬢角",
+   "k-p3": "172 cm（私設成年後185 cm）",
+   "dk-rv3": "靜岡縣一帶",
+   "dk-tag": "U.A. HIGH SCHOOL · 1-A",
+   "dk-q": "「我早就決定了！勝負一定要完全勝利！」",
+   "dm-rg0": "B",
+   "dm-rg4": "A",
+   "dm-rg1": "B+",
+   "dm-rg2": "B+",
+   "dm-txt": "愛鬧人的京都小惡魔系少女，京都腔、辣妹打扮。其實是隱藏宅，喜歡捉弄勝己，在感情上容易逃避。",
+   "dk-rk3": "出身",
+   "dk-mq": "CHERRY BOMB ✦ BAKUGO KATSUKI ✦  Great Explosion Murder God Dynamight✦",
+   "dm-mq": "CHERRY BOMB ✦ HIGAKI MIA ✦ BLOOD CONTROL ✦ LITTLE DEVIL ✦",
+   "cv-l1": "衣櫃大公開｜他們私下的穿搭？",
+   "cv-l2": "過往檔案｜要當第一的他、從京都來的她",
+   "cv-q": "「勝己為什麼到現在還是不讓我摸ㄋㄟㄋㄟ呢？」",
+   "cv-l4": "暴躁男x調皮鬼",
+   "cv-iss2": "Illustrator/JUNE",
+   "anc-k2": "很大（好",
+   "anc-k3": "耳朵尖尖",
+   "anc-m1": "虎牙",
+   "anc-m3": "有通風口",
+   "cv-qc": "少女悲傷的唉嘆",
+   "gate-notes": "本站為《我/的/英/雄/學/院》爆/豪/勝/己的夢向創作站，含原創角色與爆豪的愛情向內容，請自行斟酌閱覽。\n本站與原作完全無關，設定以個人解讀為主，請視為平行世界。\n站內圖文禁止儲存、轉載、二改、 AI 學習。",
+   "gate-fine": "最後更新：2026.10.09",
+   "gate-title": "閱覽注意",
+   "dk-txt": "脾氣不好，用詞很糟，但對勝利和自己的要求比誰都高。表面上什麼都不在乎，其實觀察入微、做事細心，料理也很拿手，才能man。",
+   "dm-q": "「你今天也這麼有活力真是太好了^^♡」",
+   "pk13": "172 cm →成年私設185 cm",
+   "pk5": "雄英高中 英雄科 1年A班 →獨立後開設事務所",
+   "pk7": "爆破",
+   "pk19": "No.4→ No. 15→ No. 5 (new)",
+   "pk18": "英雄排名",
+   "pk20": "動物形象",
+   "pk21": "公式：吉娃娃｜私設：狼",
+   "dk-p0": "極度自律"
+  },
+  "c": {}
+ },
+ "slotPos": {
+  "sheet-pair": {
+   "x": 48.7,
+   "y": 100,
+   "z": 1
+  }
+ },
+ "slotAr": {
+  "mia": 0.6725,
+  "sheet-pair": 1.404741000877963,
+  "gate": 0.705,
+  "sheet-k-face": 0.749375,
+  "sheet-m-face": 0.749375,
+  "sheet-k-full": 1.430976430976431,
+  "sheet-m-full": 0.48375,
+  "sheet-m-full2": 1.6243654822335025,
+  "anc-k1": 1.6294919454770755,
+  "sheet-k-full2": 0.5375,
+  "katsuki": 0.6725,
+  "lens-k2": 1.6294919454770755,
+  "lens-m2": 0.8342151675485009,
+  "lens-k1": 1,
+  "lens-m1": 1,
+  "cover-pair": 0.706875,
+  "mia-persona": 1.3652597402597402,
+  "mia-quirk": 1.223194748358862,
+  "mia-extra1": 0.9533582089552238,
+  "mia-mascot": 0.9533582089552238,
+  "anc-k2": 1,
+  "anc-k3": 0.95875,
+  "anc-m1": 1.1259676284306825,
+  "anc-m2": 1.0996563573883162,
+  "anc-m3": 1.4146772767462423
+ },
+ "slotCrop": {
+  "sheet-k-face": {
+   "x": 0,
+   "y": 0,
+   "w": 1,
+   "h": 0.9064
+  },
+  "sheet-k-full": {
+   "x": 0.1569,
+   "y": 0,
+   "w": 0.2635,
+   "h": 1
+  },
+  "sheet-m-full": {
+   "x": 0.1533,
+   "y": 0.0948,
+   "w": 0.7643,
+   "h": 0.8943
+  },
+  "sheet-m-full2": {
+   "x": 0.2906,
+   "y": 0,
+   "w": 0.4497,
+   "h": 0.991
+  },
+  "anc-k1": {
+   "x": 0.4719,
+   "y": 0.7122,
+   "w": 0.0944,
+   "h": 0.1538
+  },
+  "lens-m2": {
+   "x": 0.1839,
+   "y": 0.3135,
+   "w": 0.6266,
+   "h": 0.5228
+  },
+  "anc-k2": {
+   "x": 0.2447,
+   "y": 0.4395,
+   "w": 0.545,
+   "h": 0.545
+  },
+  "anc-k3": {
+   "x": 0.5038,
+   "y": 0.1849,
+   "w": 0.153,
+   "h": 0.1467
+  },
+  "anc-m1": {
+   "x": 0.4164,
+   "y": 0.3017,
+   "w": 0.1025,
+   "h": 0.1154
+  },
+  "anc-m2": {
+   "x": 0.2942,
+   "y": 0.5399,
+   "w": 0.195,
+   "h": 0.2144
+  },
+  "anc-m3": {
+   "x": 0.1055,
+   "y": 0.077,
+   "w": 0.1424,
+   "h": 0.2015
+  }
+ },
+ "slotXf": {
+  "sheet-m-full2": {
+   "x": -5.1,
+   "y": 2.8,
+   "s": 1.2699176738652809,
+   "f": false
+  },
+  "sheet-k-full2": {
+   "x": 2.3,
+   "y": 2.3,
+   "s": 1.039876475387686,
+   "f": false
+  },
+  "sheet-m-full": {
+   "x": 2.1,
+   "y": 0.1,
+   "s": 0.9049052190449469,
+   "f": false
+  },
+  "sheet-k-full": {
+   "x": 0,
+   "y": 0,
+   "s": 1,
+   "f": false
+  },
+  "lens-k2": {
+   "x": 260.9,
+   "y": 128.2,
+   "s": 8,
+   "f": false
+  },
+  "lens-m2": {
+   "x": 12.2,
+   "y": 43.7,
+   "s": 3.3171329920816746,
+   "f": false
+  },
+  "lens-k1": {
+   "x": -0.5,
+   "y": 7.1,
+   "s": 2.0126967665445394,
+   "f": false
+  },
+  "lens-m1": {
+   "x": -2.4,
+   "y": 2.8,
+   "s": 2.2242072696506,
+   "f": false
+  },
+  "katsuki": {
+   "x": 0,
+   "y": 0,
+   "s": 0.9049052190449469,
+   "f": false
+  },
+  "mia": {
+   "x": 0,
+   "y": 0,
+   "s": 1,
+   "f": false
+  },
+  "cover-pair": {
+   "x": 0,
+   "y": 0,
+   "s": 1,
+   "f": false
+  },
+  "anc-k1": {
+   "x": 0,
+   "y": 0,
+   "s": 0.9049052190449469,
+   "f": false
+  },
+  "anc-k3": {
+   "x": 0,
+   "y": 0,
+   "s": 1,
+   "f": false
+  },
+  "anc-m1": {
+   "x": 0,
+   "y": 0,
+   "s": 1,
+   "f": false
+  }
+ },
+ "wardrobe": [
+  {
+   "id": "mv0s3v1wdo5v",
+   "name": "戰鬥服",
+   "note": "繪｜我、肉鬆",
+   "imgs": [
+    "img/mv0s9ujvpt1j.webp",
+    "img/mv0sborgni91.webp"
+   ]
+  },
+  {
+   "id": "mv0s3v1wgxf3",
+   "name": "制服",
+   "note": "繪｜我、三四",
+   "imgs": [
+    "img/mv0sci7r1d0b.webp",
+    "img/mv0sczr7w667.webp"
+   ]
+  },
+  {
+   "id": "mv0s3v1wjn43",
+   "name": "春夏秋冬約會服",
+   "note": "",
+   "imgs": [
+    "img/mv13o15fe9fx.webp",
+    "img/mv13oemz5ir5.webp"
+   ]
+  },
+  {
+   "id": "mv0s3v1wep0u",
+   "name": "Light color",
+   "note": "",
+   "imgs": [
+    "img/mv13ou9nwaor.webp"
+   ]
+  },
+  {
+   "id": "mv0s3v1wuh8h",
+   "name": "美式餐廳",
+   "note": "",
+   "imgs": [
+    "img/mv13pb728cni.webp"
+   ]
+  },
+  {
+   "id": "mv0s3v1waiez",
+   "name": "平安妖怪 AU",
+   "note": "",
+   "imgs": [
+    "img/mv13pp99zprb.webp"
+   ]
+  },
+  {
+   "id": "mv0s3v1wh5id",
+   "name": "東京鐵塔",
+   "note": "",
+   "imgs": [
+    "img/mv13pwa66off.webp"
+   ]
+  },
+  {
+   "id": "mv0s3v1wlx4g",
+   "name": "十周年",
+   "note": "",
+   "imgs": [
+    "img/mv13q64cb1b1.webp"
+   ]
+  },
+  {
+   "id": "mv0s3v1wcaga",
+   "name": "私服",
+   "note": "",
+   "imgs": [
+    "img/mv13r0d5vabw.webp"
+   ]
+  },
+  {
+   "id": "mv0s3v1we6ci",
+   "name": "出遊",
+   "note": "",
+   "imgs": [
+    "img/mv13rmf4upim.webp"
+   ]
+  },
+  {
+   "id": "mv13rx9f3rme",
+   "name": "淺草花屋敷",
+   "note": "",
+   "imgs": [
+    "img/mv13s9tt4rqn.webp"
+   ]
+  }
+ ],
+ "credits": {
+  "img/muzqu3yl8hly.webp": {
+   "n": "빵꾸"
+  },
+  "img/muzqz556kgq5.webp": {
+   "n": "歐姆"
+  },
+  "img/muzr27baht6l.webp": {
+   "n": "柯驁"
+  },
+  "img/muzr37zi0h8n.webp": {
+   "n": "柯驁"
+  },
+  "img/muzr8rl7w477.webp": {
+   "n": "我英官方"
+  },
+  "img/muzpsprd3vzg.webp": {
+   "n": "화면"
+  },
+  "img/muzpqnge477b.webp": {
+   "n": "KASU"
+  },
+  "img/muzqg6j60gm3.webp": {
+   "n": "밤만쥬"
+  },
+  "img/muzoms3xuab2.gif": {
+   "n": "국구"
+  },
+  "img/muzpe1i1b0up.webp": {
+   "n": "摩珂"
+  },
+  "img/mv0tukipfwet.webp": {
+   "n": "摩珂"
+  },
+  "img/mv0vme6svw6t.webp": {
+   "n": "阿葉"
+  },
+  "img/mv0vvjuy6vv8.webp": {
+   "n": "松節油"
+  },
+  "img/mv0sczr7w667.webp": {
+   "n": "三四"
+  },
+  "img/mv0sborgni91.webp": {
+   "n": "肉鬆"
+  },
+  "img/mv13o15fe9fx.webp": {
+   "n": "子子"
+  },
+  "img/mv13oemz5ir5.webp": {
+   "n": "子子"
+  },
+  "img/mv13ou9nwaor.webp": {
+   "n": "大阪燒"
+  },
+  "img/mv13pb728cni.webp": {
+   "n": "玖禾"
+  },
+  "img/mv13pp99zprb.webp": {
+   "n": "兔仔"
+  },
+  "img/mv13pwa66off.webp": {
+   "n": "KASU"
+  }
+ },
+ "scrapImg": {
+  "mr12": "img/mv0ym98y9y70.gif"
+ },
+ "scrapXf": {
+  "kr7": {
+   "s": 1.29,
+   "l": 80.3,
+   "t": 52.8
+  },
+  "kr1": {
+   "l": 2.7,
+   "t": 19
+  },
+  "ml3": {
+   "l": -1.6,
+   "t": 34.3,
+   "s": 1.16
+  },
+  "mr12": {
+   "l": 46,
+   "t": 71.1,
+   "s": 1.13
+  },
+  "mr6": {
+   "l": 37.3,
+   "t": 88.7
+  },
+  "mr7": {
+   "s": 1.32,
+   "r": 8,
+   "l": 82.8,
+   "t": 54.8
+  }
+ },
+ "music": []
+}
