@@ -1207,6 +1207,48 @@ body.is-editing .lib-info small:empty{display:block;min-height:1.2em}
   .lib-t b{font-size:.86rem}
   .cm-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 8px;padding:6px 10px 20px}
 }
+/* ---- 圖庫：點開的檢視窗（右側資訊欄） ---- */
+.gv{position:fixed;inset:0;z-index:140;display:grid;grid-template-columns:minmax(0,1fr) 340px;background:rgba(58,42,44,.55);backdrop-filter:blur(3px)}
+.gv[hidden]{display:none}
+.gv-stage{position:relative;display:grid;place-items:center;padding:28px 64px;min-height:0;cursor:zoom-out}
+.gv{grid-template-rows:minmax(0,1fr)}
+.gv-media{position:absolute;inset:28px 64px;display:grid;place-items:center;pointer-events:none}
+.gv-stage img,.gv-stage video{pointer-events:auto;max-width:100%;max-height:100%;min-width:0;min-height:0;object-fit:contain;border-radius:6px;box-shadow:0 14px 40px rgba(30,18,20,.35);cursor:default}
+.gv-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border:0;border-radius:50%;background:rgba(255,255,255,.85);color:#c9606d;font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:0 4px 12px rgba(30,18,20,.2)}
+.gv-nav.prev{left:14px}.gv-nav.next{right:14px}
+.gv-side{position:relative;background:#fbf8f8;border-left:1px solid #efe4e3;overflow-y:auto;padding:26px 22px 30px;color:#4a3a3c}
+.gv-x{position:absolute;right:14px;top:14px;width:32px;height:32px;border:1px solid #ecdcdb;border-radius:50%;background:#fff;color:#9a8587;font-size:16px;cursor:pointer}
+.gv-title{margin:0 40px 18px 0;font:700 1.15rem/1.4 var(--f-display);letter-spacing:.06em;color:#3a2a2c;word-break:break-word}
+.gv-title:empty::before{content:"未命名";color:#c9b7b5}
+.gv-props{display:grid}
+.gv-row{display:grid;grid-template-columns:22px 74px minmax(0,1fr);align-items:center;gap:6px;min-height:40px;padding:6px 0;border-bottom:1px solid #efe4e3;font-size:.86rem}
+.gv-row svg{width:15px;height:15px;color:#b9a4a3}
+.gv-row.pen svg{color:#e58f99}
+.gv-row>span{color:#9a8587;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gv-row>div{min-width:0;word-break:break-word}
+.gv-row a{color:#c9606d;font-weight:600;text-decoration:none}
+.gv-row a:hover{text-decoration:underline}
+.gv-pill{display:inline-block;padding:2px 9px;border-radius:5px;font-size:.8rem;font-weight:600}
+.gv-pill.comm{background:#fbe3d3;color:#b5622f}.gv-pill.doodle{background:#f8dfe2;color:#b34f5c}.gv-pill.none{background:#efe8e7;color:#9a8587}
+.gv-side input,.gv-side select{width:100%;box-sizing:border-box;padding:5px 8px;border:1px solid #e8d7d5;border-radius:6px;background:#fff;font:inherit;font-size:.85rem;color:#4a3a3c}
+.gv-side input:focus,.gv-side select:focus{outline:2px solid #f1c7cc;border-color:#e58f99}
+.gv-row .gv-k{padding:3px 6px;font-size:.8rem}
+.gv-row .gv-del{border:0;background:none;color:#c9b7b5;cursor:pointer;font-size:14px;padding:0 2px}
+.gv-row.ed{grid-template-columns:22px 82px minmax(0,1fr) 18px}
+.gv-add{margin-top:8px;border:0;background:none;padding:6px 0;color:#9a8587;font-size:.85rem;cursor:pointer;display:flex;align-items:center;gap:8px}
+.gv-add:hover{color:#c9606d}
+.gv-icons{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0 0 28px}
+.gv-icons button{display:flex;align-items:center;gap:4px;padding:4px 9px;border:1px solid #ecdcdb;border-radius:999px;background:#fff;color:#7a6466;font-size:.78rem;cursor:pointer}
+.gv-icons svg{width:13px;height:13px}
+.gv-delw{margin-top:24px;border:1px solid #f1d2d6;border-radius:999px;background:#fff;color:#c9606d;padding:6px 14px;font-size:.8rem;cursor:pointer}
+.gv-hint{margin:14px 0 0;font-size:.75rem;color:#b9a4a3;line-height:1.6}
+@media (max-width:760px){
+  .gv{grid-template-columns:1fr;grid-template-rows:minmax(0,58vh) minmax(0,1fr)}
+  .gv-stage{padding:16px 12px}
+  .gv-media{inset:14px 44px}
+  .gv-nav{width:34px;height:34px;font-size:17px}.gv-nav.prev{left:6px}.gv-nav.next{right:6px}
+  .gv-side{border-left:0;border-top:1px solid #efe4e3;border-radius:18px 18px 0 0;padding:20px 18px 28px}
+}
 /*cover*/
 .dos-back{display:inline-block;margin:0 0 12px;font:700 12px/1 "Courier Prime",var(--f-body);letter-spacing:.2em;color:#9a8587;text-decoration:none}
 .dos-back:hover{color:var(--ac)}
@@ -1846,6 +1888,10 @@ body.is-editing .lib-info small:empty{display:block;min-height:1.2em}
   </div>
 </div>
 <input type="file" id="filePick" accept="image/*,video/mp4,video/webm" hidden>
+<div class="gv" id="gv" hidden role="dialog" aria-modal="true" aria-label="圖片詳情">
+  <div class="gv-stage" id="gvStage"><button type="button" class="gv-nav prev" id="gvPrev" aria-label="上一張">‹</button><div class="gv-media" id="gvMedia"></div><button type="button" class="gv-nav next" id="gvNext" aria-label="下一張">›</button></div>
+  <aside class="gv-side" id="gvSide"></aside>
+</div>
 <div class="lightbox" id="lightbox" hidden><img alt="" id="lbImg"><video id="lbVid" controls loop playsinline hidden></video><p id="lbCap"></p></div>
 <div class="mp" id="mp" hidden aria-label="音樂播放器">
   <div class="mp-bar"><i id="mpBar"></i></div>
@@ -1957,7 +2003,7 @@ body.is-editing .lib-info small:empty{display:block;min-height:1.2em}
   window.__cbRoute=route;
 })();
 </script>
-<script src="app.js?v=1791569371"></script>
+<script src="app.js?v=1791569836"></script>
 
 </body>
 </html>

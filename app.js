@@ -912,11 +912,7 @@
         '<figcaption><span>' + esc(g.title || '') + (creditOf(g.src) ? '　繪：' + esc(creditOf(g.src).n) : '') + '</span><span>' + (CAT[g.cat] || '') + '</span></figcaption>';
       f.onclick = function (e) {
         if (e.target.closest('.x')) return;
-        var v = isVid(g.src);
-        $('lbImg').hidden = v; $('lbVid').hidden = !v;
-        if (v) $('lbVid').src = src(g.src); else $('lbImg').src = src(g.src);
-        $('lbCap').textContent = [g.title, creditOf(g.src) ? 'art / ' + creditOf(g.src).n : ''].filter(Boolean).join('　');
-        $('lightbox').hidden = false;
+        gvOpen(g.id || (g.id = uid()), list);
       };
       if (editing) {
         var x = document.createElement('button');
@@ -937,6 +933,127 @@
     });
   });
   $('lightbox').addEventListener('click', function () { $('lightbox').hidden = true; $('lbVid').pause(); });
+  // ---------- 圖庫檢視窗：左邊大圖、右邊像 Notion 的資訊欄（編輯模式下全部可以直接改） ----------
+  var GVI = {
+    pen: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.7 3.3a2.4 2.4 0 0 0-3.4 0L8.6 12l3.4 3.4 8.7-8.7a2.4 2.4 0 0 0 0-3.4zM7.4 13.4c-2 0-3.4 1.4-3.6 3.4-.1 1.3-.6 2.3-1.8 3 2.6 1 6.4.4 7.6-1.4.8-1.2.7-2.6-.2-3.6z"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.4 3.6 2.1-1 1.7L11 13V6.5h2z"/></svg>',
+    list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r=".6" fill="currentColor"/><circle cx="4.5" cy="12" r=".6" fill="currentColor"/><circle cx="4.5" cy="18" r=".6" fill="currentColor"/></svg>',
+    link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>',
+    text: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>',
+    date: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke-linecap="round"/></svg>',
+    globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 2.6 15.4 0 18M12 3c-2.6 2.6-2.6 15.4 0 18"/></svg>',
+    heart: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></svg>'
+  };
+  var GV_ADD = [['text', '文字'], ['link', '連結'], ['date', '日期'], ['globe', '平台'], ['heart', '心情']];
+  var gvList = [], gvId = null, gvAdding = false;
+  function gvAt(g) { if (g.at) return g.at; var t = parseInt(String(g.id || '').slice(0, -4), 36); return t > 1.6e12 && t < 4e12 ? new Date(t).toISOString() : ''; } // 舊圖沒有建立時間：從上傳時產生的編號推回去
+  function gvItem() { return (state.gallery || []).filter(function (g) { return g.id === gvId; })[0]; }
+  function gvFmt(iso) {
+    var d = new Date(iso); if (!iso || isNaN(d)) return '';
+    var h = d.getHours(), ap = h < 12 ? '上午' : '下午', hh = h % 12 || 12, mm = ('0' + d.getMinutes()).slice(-2);
+    return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + ap + hh + ':' + mm;
+  }
+  function gvLocal(iso) { var d = new Date(iso); if (!iso || isNaN(d)) return ''; d = new Date(d.getTime() - d.getTimezoneOffset() * 60000); return d.toISOString().slice(0, 16); }
+  function gvOpen(id, list) {
+    gvId = id; gvList = (list || state.gallery || []).map(function (g) { return g.id || (g.id = uid()); }); gvAdding = false;
+    $('gv').hidden = false; document.body.style.overflow = 'hidden'; gvRender();
+  }
+  function gvClose() { $('gv').hidden = true; document.body.style.overflow = ''; var v = $('gvMedia').querySelector('video'); if (v) v.pause(); gvId = null; }
+  function gvStep(d) { var i = gvList.indexOf(gvId); if (i < 0 || gvList.length < 2) return; gvId = gvList[(i + d + gvList.length) % gvList.length]; gvAdding = false; gvRender(); }
+  function gvSet(g, fn) { fn(g); markDirty(); renderGallery(); }
+  function gvRender() {
+    var g = gvItem(); if (!g) { gvClose(); return; }
+    $('gv').style.bottom = editing && !$('editBar').hidden ? $('editBar').offsetHeight + 'px' : '';
+    var m = $('gvMedia');
+    m.innerHTML = isVid(g.src) ? '<video controls loop playsinline src="' + esc(src(g.src)) + '"></video>' : '<img alt="' + esc(g.title || '') + '" src="' + esc(src(g.src)) + '">';
+    $('gvPrev').hidden = $('gvNext').hidden = gvList.length < 2;
+    var side = $('gvSide'); side.innerHTML = '';
+    var x = document.createElement('button'); x.type = 'button'; x.className = 'gv-x'; x.textContent = '×'; x.setAttribute('aria-label', '關閉'); x.onclick = gvClose; side.appendChild(x);
+    var t = document.createElement('h2'); t.className = 'gv-title'; t.textContent = g.title || ''; side.appendChild(t);
+    if (editing) editable(t, function () { return g.title || ''; }, function (v) { gvSet(g, function (o) { o.title = v; }); });
+    var box = document.createElement('div'); box.className = 'gv-props'; side.appendChild(box);
+    function row(ic, label, cls) {
+      var r = document.createElement('div'); r.className = 'gv-row' + (cls ? ' ' + cls : '');
+      r.innerHTML = (GVI[ic] || GVI.text) + '<span></span><div></div>'; r.children[1].textContent = label; box.appendChild(r); return r.children[2];
+    }
+    function inp(type, val, onchange, ph) {
+      var i = document.createElement('input'); i.type = type; i.value = val || ''; if (ph) i.placeholder = ph;
+      i.onchange = function () { onchange(i.value); };
+      i.onkeydown = function (e) { if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) i.blur(); };
+      return i;
+    }
+    // 建立時間
+    var at = row('clock', '建立時間');
+    if (editing) at.appendChild(inp('datetime-local', gvLocal(gvAt(g)), function (v) { gvSet(g, function (o) { o.at = v ? new Date(v).toISOString() : ''; }); gvRender(); }));
+    else at.textContent = gvFmt(gvAt(g)) || '—';
+    // 繪師（筆）
+    var cr = creditOf(g.src), pen = row('pen', '繪師', 'pen');
+    if (editing) {
+      var pi = inp('text', cr ? cr.n : '', function (v) {
+        v = v.trim(); gvSet(g, function (o) { o.credit = v; var c = state.credits && state.credits[o.src]; if (c) { if (v) c.n = v; else delete state.credits[o.src]; } });
+      }, '誰畫的？'); pi.setAttribute('list', 'cdNames'); pen.appendChild(pi);
+      pi.onfocus = function () { var names = {}; (state.gallery || []).forEach(function (o) { if (o.credit) names[o.credit] = 1; }); Object.keys(state.credits || {}).forEach(function (k) { if (state.credits[k].n) names[state.credits[k].n] = 1; }); $('cdNames').innerHTML = Object.keys(names).map(function (n) { return '<option value="' + esc(n) + '">'; }).join(''); };
+    } else if (cr) { var u = safeUrl(cr.u); pen.innerHTML = u ? '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(cr.n) + '</a>' : esc(cr.n); }
+    else pen.textContent = '—';
+    // 分類
+    var ct = row('list', '分類');
+    if (editing) {
+      var se = document.createElement('select');
+      [['comm', '委託'], ['doodle', '塗鴉'], ['', '不分類']].forEach(function (o) { var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; se.appendChild(op); });
+      se.value = CAT[g.cat] ? g.cat : ''; se.onchange = function () { gvSet(g, function (o) { o.cat = se.value; }); };
+      ct.appendChild(se);
+    } else ct.innerHTML = CAT[g.cat] ? '<span class="gv-pill ' + esc(g.cat) + '">' + esc(CAT[g.cat]) + '</span>' : '<span class="gv-pill none">未分類</span>';
+    // 自訂欄位
+    g.props = g.props || [];
+    g.props.forEach(function (pr, pi2) {
+      if (!editing && !pr.v) return;
+      if (editing) {
+        var r = document.createElement('div'); r.className = 'gv-row ed'; r.innerHTML = GVI[pr.ic] || GVI.text; box.appendChild(r);
+        var k = inp('text', pr.k, function (v) { gvSet(g, function () { pr.k = v.trim(); }); }, '名稱'); k.className = 'gv-k'; r.appendChild(k);
+        var vv = inp(pr.ic === 'date' ? 'date' : pr.ic === 'link' ? 'url' : 'text', pr.v, function (v) { gvSet(g, function () { pr.v = v.trim(); }); }, pr.ic === 'link' ? 'https://…' : '內容'); r.appendChild(vv);
+        var d = document.createElement('button'); d.type = 'button'; d.className = 'gv-del'; d.textContent = '×'; d.title = '刪掉這個欄位';
+        d.onclick = function () { gvSet(g, function (o) { o.props.splice(pi2, 1); }); gvRender(); }; r.appendChild(d);
+      } else {
+        var c = row(pr.ic, pr.k || '');
+        if (pr.ic === 'link' && safeUrl(pr.v)) c.innerHTML = '<a href="' + esc(pr.v) + '" target="_blank" rel="noopener">' + esc(pr.v.replace(/^https?:\/\//, '')) + '</a>';
+        else if (pr.ic === 'date') { var dd = new Date(pr.v); c.textContent = isNaN(dd) ? pr.v : dd.getFullYear() + '年' + (dd.getMonth() + 1) + '月' + dd.getDate() + '日'; }
+        else c.textContent = pr.v;
+      }
+    });
+    if (editing) {
+      var add = document.createElement('button'); add.type = 'button'; add.className = 'gv-add'; add.innerHTML = '＋ 新增欄位';
+      add.onclick = function () { gvAdding = !gvAdding; gvRender(); }; side.appendChild(add);
+      if (gvAdding) {
+        var ic = document.createElement('div'); ic.className = 'gv-icons';
+        GV_ADD.forEach(function (a) {
+          var b = document.createElement('button'); b.type = 'button'; b.innerHTML = GVI[a[0]] + a[1];
+          b.onclick = function () { gvAdding = false; gvSet(g, function (o) { o.props = o.props || []; o.props.push({ k: a[1], v: '', ic: a[0] }); }); gvRender(); var ins = $('gvSide').querySelectorAll('.gv-row.ed'); var last = ins[ins.length - 1]; if (last) last.querySelectorAll('input')[1].focus(); };
+          ic.appendChild(b);
+        });
+        side.appendChild(ic);
+      }
+      var del = document.createElement('button'); del.type = 'button'; del.className = 'gv-delw'; del.textContent = '刪除這張圖';
+      del.onclick = function () {
+        if (!confirmDel()) { del.textContent = '再按一次確定刪除'; return; }
+        var i = gvList.indexOf(gvId); state.gallery = state.gallery.filter(function (o) { return o !== g; }); gvList.splice(i, 1); markDirty(); renderGallery();
+        if (!gvList.length) gvClose(); else { gvId = gvList[Math.min(i, gvList.length - 1)]; gvRender(); }
+      };
+      side.appendChild(del);
+      var hint = document.createElement('p'); hint.className = 'gv-hint'; hint.textContent = '標題點一下就能改；欄位名稱也可以自己改。'; side.appendChild(hint);
+    }
+  }
+  $('gvPrev').addEventListener('click', function (e) { e.stopPropagation(); gvStep(-1); });
+  $('gvNext').addEventListener('click', function (e) { e.stopPropagation(); gvStep(1); });
+  $('gvStage').addEventListener('click', function (e) { if (e.target === this) gvClose(); });
+  document.addEventListener('keydown', function (e) {
+    if ($('gv').hidden || e.target.closest('input,select,textarea,[contenteditable="true"]')) return;
+    if (e.key === 'Escape') gvClose(); else if (e.key === 'ArrowLeft') gvStep(-1); else if (e.key === 'ArrowRight') gvStep(1);
+  });
+  (function () { var sx = 0, sy = 0; var st = $('gvStage');
+    st.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    st.addEventListener('touchend', function (e) { var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) gvStep(dx < 0 ? 1 : -1); });
+  })();
+
   $('addForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var files = [].slice.call($('gFile').files);
@@ -944,7 +1061,7 @@
     status('處理圖片中…');
     var cat = $('gCat').value, title = $('gTitle').value.trim(), credit = $('gCredit').value.trim();
     Promise.all(files.map(addFile)).then(function (paths) {
-      paths.forEach(function (p) { state.gallery.unshift({ id: uid(), src: p, cat: cat, title: title, credit: credit }); });
+      paths.forEach(function (p) { state.gallery.unshift({ id: uid(), src: p, cat: cat, title: title, credit: credit, at: new Date().toISOString() }); });
       $('addForm').reset(); markDirty(); renderGallery();
     }).catch(function (er) { status((er && er.msg) || '有圖片讀不了，換一張試試'); });
   });
@@ -1222,6 +1339,7 @@
       status(dirty ? '有未儲存的變更' : '點一下項目就能拖曳、拉角落縮放、拉上方圓點旋轉；也可以直接把圖片檔拖進拼貼區');
     }
     renderAll();
+    if (!$('gv').hidden) gvRender();
   }
   var canEditView = false;
   function startEdit() { setEditing(true); }
