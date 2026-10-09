@@ -1734,11 +1734,12 @@ body.is-editing .lib-info small:empty{display:block;min-height:1.2em}
       <div class="filters" role="group" aria-label="篩選">
         <button type="button" data-f="all" aria-pressed="true">全部</button>
         <button type="button" data-f="comm" aria-pressed="false">委託</button>
+        <button type="button" data-f="doodle" aria-pressed="false">塗鴉</button>
       </div>
       <form class="addform edit-only" id="addForm" hidden>
         <strong>新增圖片到圖庫</strong>
         <label>圖片／影片<input type="file" id="gFile" accept="image/*,video/mp4,video/webm" multiple required></label>
-        <label>分類<select id="gCat"><option value="comm">委託</option><option value="illus">非委託</option></select></label>
+        <label>分類<select id="gCat"><option value="comm">委託</option><option value="doodle">塗鴉</option></select></label>
         <label>標題<input type="text" id="gTitle" placeholder="例：林間合宿"></label>
         <label>繪師<input type="text" id="gCredit" placeholder="例：摩珂"></label>
         <button type="submit" class="btn">加入</button>
@@ -1956,7 +1957,7 @@ body.is-editing .lib-info small:empty{display:block;min-height:1.2em}
   window.__cbRoute=route;
 })();
 </script>
-<script src="app.js?v=1791569166"></script>
+<script src="app.js?v=1791569371"></script>
 
 </body>
 </html>
