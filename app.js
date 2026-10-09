@@ -1552,18 +1552,36 @@
   var au = new Audio(), mIdx = 0, mOpen = false;
   au.preload = 'none';
   function tracks() { if (!state.music) state.music = []; return state.music; }
+  // iPhone／iPad 的 Safari 不能用 audio.volume 調音量，所以改用 Web Audio 的音量節點（電腦、Android 也一起用）
+  var actx = null, gainN = null;
+  function mVol() { var v = parseFloat(mpLS('cb-vol')); return isNaN(v) ? .6 : v; }
+  function ensureGain() {
+    if (!actx) {
+      try {
+        var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+        actx = new AC(); gainN = actx.createGain(); gainN.gain.value = mVol();
+        actx.createMediaElementSource(au).connect(gainN); gainN.connect(actx.destination);
+      } catch (e) { actx = null; gainN = null; return; }
+    }
+    if (actx.state === 'suspended') actx.resume().catch(function () {});
+  }
+  function applyVol(v) {
+    if (gainN) { gainN.gain.value = v; try { au.volume = 1; } catch (e) {} }
+    else { try { au.volume = v; } catch (e) {} }
+  }
   var mpLS = function (k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
   function mLoad(i, play) {
     var T = tracks(); if (!T.length) return;
     mIdx = (i + T.length) % T.length; au.src = src(T[mIdx].src);
-    try { au.volume = +(mpLS('cb-vol') || .6); } catch (e) {}
+    if (play) ensureGain();
+    applyVol(mVol());
     if (play) au.play().catch(function () {});
     renderMusic();
   }
   function mToggle() {
     var T = tracks(); if (!T.length) { if (editing) $('musicPick').click(); return; }
     if (!au.src) return mLoad(mIdx, true), mpLS('cb-music', 'on');
-    if (au.paused) { au.play().catch(function () {}); mpLS('cb-music', 'on'); } else { au.pause(); mpLS('cb-music', 'off'); }
+    if (au.paused) { ensureGain(); applyVol(mVol()); au.play().catch(function () {}); mpLS('cb-music', 'on'); } else { au.pause(); mpLS('cb-music', 'off'); }
   }
   function renderMusic() {
     var mp = $('mp'); if (!mp || !state) return;
@@ -1610,11 +1628,11 @@
   $('mpPrev').addEventListener('click', function () { if (tracks().length) mLoad(mIdx - 1, true); });
   $('mpNext').addEventListener('click', function () { if (tracks().length) mLoad(mIdx + 1, true); });
   $('mpListBtn').addEventListener('click', function () { mOpen = !mOpen; renderMusic(); });
-  $('mpVol').value = mpLS('cb-vol') || .6;
+  $('mpVol').value = mVol();
   function mVolUI() { var v = +$('mpVol').value; $('mpVolN').textContent = Math.round(v * 100); $('mp').classList.toggle('muted', v === 0); $('mp').classList.toggle('low', v > 0 && v < .5); }
-  $('mpVol').addEventListener('input', function () { au.volume = +this.value; mpLS('cb-vol', this.value); mVolUI(); });
+  $('mpVol').addEventListener('input', function () { mpLS('cb-vol', this.value); applyVol(+this.value); mVolUI(); });
   $('mpVolBtn').addEventListener('click', function (e) { e.stopPropagation(); var on = !$('mp').classList.contains('vol'); $('mp').classList.toggle('vol', on); this.setAttribute('aria-expanded', String(on)); });
-  au.volume = +$('mpVol').value; mVolUI();
+  applyVol(+$('mpVol').value); mVolUI();
   $('mpAdd').addEventListener('click', function () { $('musicPick').click(); });
   $('musicPick').addEventListener('change', function (e) {
     var files = [].slice.call(e.target.files); e.target.value = ''; if (!files.length) return;
