@@ -1036,7 +1036,18 @@ body:has(#gate:not([hidden])) .mp{display:none}
 .mp-info b{font-size:.86rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mp-info small{font-size:.7rem;color:#9a8587;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mp-ctl{display:flex;gap:2px;flex:none}
-.mp-ctl button{width:28px;height:28px;border:0;border-radius:50%;background:none;color:#c9606d;font-size:11px;cursor:pointer;display:grid;place-items:center}
+.mp-ctl button{width:28px;height:28px;border:0;border-radius:50%;background:none;color:#c9606d;font-size:11px;cursor:pointer;display:grid;place-items:center;padding:0}
+.mp-ctl svg{width:13px;height:13px;fill:currentColor}
+.mp-ctl .pl svg{width:12px;height:12px}
+.mp-ctl .vb svg{width:15px;height:15px}
+.mp-ctl .vb .mute{display:none}
+.mp.muted .mp-ctl .vb .mute{display:inline}.mp.muted .mp-ctl .vb .w1,.mp.muted .mp-ctl .vb .w2{display:none}
+.mp.low .mp-ctl .vb .w2{display:none}
+.mp-vol{display:none;align-items:center;gap:10px;padding:0 14px 11px 16px;font-size:.72rem;color:#9a8587;letter-spacing:.08em}
+.mp.vol .mp-vol{display:flex}
+.mp-vol input{flex:1;accent-color:#c9606d;min-width:0}
+.mp-vol b{width:2.6em;text-align:right;font:400 11px/1 "Courier Prime",monospace;color:#c9606d}
+.mp.vol .mp-ctl .vb{background:#f8e1e3}
 .mp-ctl button:hover{background:#f8e1e3}
 .mp-ctl .pl{width:32px;height:32px;background:#c9606d;color:#fff;font-size:11px}
 .mp-ctl .pl:hover{background:#b8505d}
@@ -1978,10 +1989,11 @@ body.is-editing .arc-box [contenteditable]{outline:1px dashed #e0c9c6;outline-of
   <div class="mp-main">
     <button type="button" class="mp-disc" id="mpListBtn" aria-label="打開歌單"><i></i></button>
     <div class="mp-info"><b id="mpTitle"></b><small id="mpArtist"></small></div>
-    <div class="mp-ctl"><button type="button" id="mpPrev" aria-label="上一首">⏮</button><button type="button" id="mpPlay" class="pl" aria-label="播放">▶</button><button type="button" id="mpNext" aria-label="下一首">⏭</button></div>
+    <div class="mp-ctl"><button type="button" id="mpPrev" aria-label="上一首"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3" width="2" height="10" rx="1"/><path d="M13 3.6v8.8a.8.8 0 0 1-1.2.7L5.6 8.7a.8.8 0 0 1 0-1.4l6.2-4.4a.8.8 0 0 1 1.2.7z"/></svg></button><button type="button" id="mpPlay" class="pl" aria-label="播放"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6a.9.9 0 0 0 1.4.8l7.2-4.8a.9.9 0 0 0 0-1.6L6.4 2.4A.9.9 0 0 0 5 3.2z"/></svg></button><button type="button" id="mpNext" aria-label="下一首"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="11.5" y="3" width="2" height="10" rx="1"/><path d="M3 3.6v8.8a.8.8 0 0 0 1.2.7l6.2-4.4a.8.8 0 0 0 0-1.4L4.2 2.9A.8.8 0 0 0 3 3.6z"/></svg></button><button type="button" id="mpVolBtn" class="vb" aria-label="音量" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6.2v3.6c0 .4.3.7.7.7h2.1l3.4 2.8c.5.4 1.1 0 1.1-.6V3.3c0-.6-.6-1-1.1-.6L4.8 5.5H2.7c-.4 0-.7.3-.7.7z"/><path class="w1" d="M11 5.6a3.3 3.3 0 0 1 0 4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path class="w2" d="M12.6 3.9a5.7 5.7 0 0 1 0 8.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path class="mute" d="M11 6l3.5 4M14.5 6L11 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div>
   </div>
+  <div class="mp-vol" id="mpVolRow"><span>音量</span><input type="range" id="mpVol" min="0" max="1" step="0.05" aria-label="音量"><b id="mpVolN"></b></div>
   <div class="mp-pop">
-    <p class="mp-h"><span>♪ PLAYLIST</span><label>音量<input type="range" id="mpVol" min="0" max="1" step="0.05"></label></p>
+    <p class="mp-h"><span>♪ PLAYLIST</span></p>
     <ol class="mp-list" id="mpList"></ol>
     <button type="button" class="btn small" id="mpAdd" hidden>＋ 加歌（mp3 / m4a）</button>
   </div>
@@ -2083,7 +2095,7 @@ body.is-editing .arc-box [contenteditable]{outline:1px dashed #e0c9c6;outline-of
   window.__cbRoute=route;
 })();
 </script>
-<script src="app.js?v=1791577112"></script>
+<script src="app.js?v=1791577195"></script>
 
 </body>
 </html>

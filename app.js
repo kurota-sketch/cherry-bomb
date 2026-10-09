@@ -1573,7 +1573,7 @@
     mp.classList.toggle('open', mOpen);
     $('mpTitle').textContent = t ? (t.title || '未命名') : (editing ? '還沒有歌，點唱片按 ＋ 加歌' : '還沒有歌：按「編輯」後加入');
     $('mpArtist').textContent = t ? (t.artist || '') : '';
-    $('mpPlay').textContent = au.paused ? '▶' : '❚❚';
+    $('mpPlay').innerHTML = au.paused ? '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6a.9.9 0 0 0 1.4.8l7.2-4.8a.9.9 0 0 0 0-1.6L6.4 2.4A.9.9 0 0 0 5 3.2z"/></svg>' : '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="2.8" width="3.2" height="10.4" rx="1.2"/><rect x="9.3" y="2.8" width="3.2" height="10.4" rx="1.2"/></svg>';
     $('mpPlay').setAttribute('aria-label', au.paused ? '播放' : '暫停');
     var ul = $('mpList'); ul.innerHTML = '';
     T.forEach(function (o, i) {
@@ -1611,7 +1611,10 @@
   $('mpNext').addEventListener('click', function () { if (tracks().length) mLoad(mIdx + 1, true); });
   $('mpListBtn').addEventListener('click', function () { mOpen = !mOpen; renderMusic(); });
   $('mpVol').value = mpLS('cb-vol') || .6;
-  $('mpVol').addEventListener('input', function () { au.volume = +this.value; mpLS('cb-vol', this.value); });
+  function mVolUI() { var v = +$('mpVol').value; $('mpVolN').textContent = Math.round(v * 100); $('mp').classList.toggle('muted', v === 0); $('mp').classList.toggle('low', v > 0 && v < .5); }
+  $('mpVol').addEventListener('input', function () { au.volume = +this.value; mpLS('cb-vol', this.value); mVolUI(); });
+  $('mpVolBtn').addEventListener('click', function (e) { e.stopPropagation(); var on = !$('mp').classList.contains('vol'); $('mp').classList.toggle('vol', on); this.setAttribute('aria-expanded', String(on)); });
+  au.volume = +$('mpVol').value; mVolUI();
   $('mpAdd').addEventListener('click', function () { $('musicPick').click(); });
   $('musicPick').addEventListener('change', function (e) {
     var files = [].slice.call(e.target.files); e.target.value = ''; if (!files.length) return;
@@ -1623,7 +1626,7 @@
     }, Promise.resolve()).then(function () { markDirty(); status('加好了，記得按「儲存」'); });
   });
   // 按「進入」那一下開始播（瀏覽器不讓網站一打開就自己出聲）；訪客上次按過暫停就不自動播
-  $('enterBtn').addEventListener('click', function () { if (state && tracks().length && mpLS('cb-music') !== 'off' && au.paused) mLoad(mIdx, true); });
+  // 不自動播放：訪客自己按播放鍵才會開始
 
   // ---------- 游標小未亜 ----------
   (function () {
