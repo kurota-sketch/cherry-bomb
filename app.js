@@ -903,6 +903,7 @@
   // ---------- 圖庫 ----------
   var filter = 'all';
   function renderGallery() {
+    if (typeof renderLib === "function" && state) setTimeout(function(){ try { renderLib(); } catch (e) {} }, 0);
     grid.innerHTML = '';
     var list = state.gallery.filter(function (g) { return filter === 'all' || g.cat === filter; });
     list.forEach(function (g) {
@@ -1406,13 +1407,20 @@
   function renderLib() {
     if (!$('libGrid') || !state) return;
     var L = lib(), g = $('libGrid'); g.innerHTML = '';
-    // 分頁：漫畫／小說
-    var tabs = $('libTabs'); tabs.innerHTML = '';
-    [['comic', '漫畫'], ['novel', '小說']].forEach(function (t) {
-      var n = L.filter(function (w) { return w.type === t[0]; }).length, b = document.createElement('button');
-      b.type = 'button'; b.setAttribute('aria-pressed', String(libTab === t[0])); b.innerHTML = esc(t[1]) + '<i>' + n + '</i>';
-      b.onclick = function () { libTab = t[0]; libTagF = ''; try { localStorage.setItem('cb-lib-tab', libTab); } catch (er) {} renderLib(); };
-      tabs.appendChild(b);
+    // 圖庫分頁：插圖／漫畫／小說（插圖在 #gallery，漫畫小說在 #library）
+    ['libTabs', 'galTabs'].forEach(function (tid) {
+      var tabs = $(tid); if (!tabs) return; tabs.innerHTML = '';
+      [['img', '插圖'], ['comic', '漫畫'], ['novel', '小說']].forEach(function (t) {
+        var n = t[0] === 'img' ? (state.gallery || []).length : L.filter(function (w) { return w.type === t[0]; }).length, b = document.createElement('button');
+        var on = tid === 'galTabs' ? t[0] === 'img' : libTab === t[0];
+        b.type = 'button'; b.setAttribute('aria-pressed', String(on)); b.innerHTML = esc(t[1]) + '<i>' + n + '</i>';
+        b.onclick = function () {
+          if (t[0] === 'img') { location.hash = 'gallery'; return; }
+          libTab = t[0]; libTagF = ''; try { localStorage.setItem('cb-lib-tab', libTab); } catch (er) {}
+          if (location.hash !== '#library') location.hash = 'library'; renderLib();
+        };
+        tabs.appendChild(b);
+      });
     });
     $('libAddComic').hidden = libTab !== 'comic'; $('libAddNovel').hidden = libTab !== 'novel';
     var inTab = L.filter(function (w) { return w.type === libTab; });

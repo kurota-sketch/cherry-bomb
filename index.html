@@ -1071,6 +1071,7 @@ body:has(#gate:not([hidden])) .mp{display:none}
 #library{--o:#e0844e;--p:#c9606d;--ink:#4a3a3c}
 .lib-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 18px}
 .lib-head h2{margin:0;font:400 clamp(2rem,5vw,3rem)/1 "DM Serif Display",serif;color:#7a4b51;letter-spacing:.04em}
+.lib-head .ptitle{margin-bottom:0}
 .lib-head h2 small{display:block;margin-top:6px;font:500 12px/1 var(--f-body);letter-spacing:.3em;color:#9a8587}
 .lib-add{display:flex;gap:8px}
 .lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px}
@@ -1325,7 +1326,6 @@ body.is-editing .lib-info small:empty{display:block;min-height:1.2em}
         <a href="#journal">首頁</a>
         <a href="#cover">角色介紹</a>
         <a href="#history">Route</a>
-        <a href="#library">閱讀</a>
         <a href="#gallery">圖庫</a>
         <button type="button" class="navedit" id="navEdit" hidden>✎ 編輯</button>
       </nav>
@@ -1730,16 +1730,16 @@ body.is-editing .lib-info small:empty{display:block;min-height:1.2em}
     <!-- 圖庫 -->
     <section class="page" id="gallery" data-page hidden>
       <div><span class="eyebrow">Gallery</span><h1 class="ptitle">圖庫</h1></div>
+      <div class="lib-tabs" id="galTabs" role="tablist" aria-label="圖庫分類"></div>
       <div class="filters" role="group" aria-label="篩選">
         <button type="button" data-f="all" aria-pressed="true">全部</button>
-        <button type="button" data-f="comic" aria-pressed="false">漫畫</button>
         <button type="button" data-f="illus" aria-pressed="false">圖文</button>
         <button type="button" data-f="comm" aria-pressed="false">委託</button>
       </div>
       <form class="addform edit-only" id="addForm" hidden>
         <strong>新增圖片到圖庫</strong>
         <label>圖片／影片<input type="file" id="gFile" accept="image/*,video/mp4,video/webm" multiple required></label>
-        <label>分類<select id="gCat"><option value="comm">委託</option><option value="comic">漫畫</option><option value="illus">圖文</option></select></label>
+        <label>分類<select id="gCat"><option value="comm">委託</option><option value="illus">圖文</option></select></label>
         <label>標題<input type="text" id="gTitle" placeholder="例：林間合宿"></label>
         <label>繪師<input type="text" id="gCredit" placeholder="例：摩珂"></label>
         <button type="submit" class="btn">加入</button>
@@ -1751,18 +1751,18 @@ body.is-editing .lib-info small:empty{display:block;min-height:1.2em}
     <!-- 閱讀：小說／漫畫 -->
     <section class="page" id="library" data-page hidden>
       <div class="lib-list" id="libList">
-        <header class="lib-head"><h2>LIBRARY<small>小說・漫畫</small></h2>
+        <header class="lib-head"><div><span class="eyebrow">Gallery</span><h1 class="ptitle">圖庫</h1></div>
           <div class="lib-add edit-only" hidden><button type="button" class="btn small" id="libAddNovel">＋ 新增小說</button><button type="button" class="btn small" id="libAddComic">＋ 新增漫畫</button></div></header>
-        <div class="lib-tabs" id="libTabs" role="tablist" aria-label="作品分類"></div>
+        <div class="lib-tabs" id="libTabs" role="tablist" aria-label="圖庫分類"></div>
         <div class="lib-tagbar" id="libTagbar" hidden></div>
         <datalist id="libTagList"></datalist>
         <div class="lib-grid" id="libGrid"></div>
       </div>
       <article class="nv" id="novel" hidden>
-        <button type="button" class="nv-back" data-back>← 回到書櫃</button>
+        <button type="button" class="nv-back" data-back>← 回到圖庫</button>
         <header class="nv-head"><p class="nv-kind">NOVEL</p><h2 class="nv-title" id="nvTitle"></h2><p class="nv-note" id="nvNote"></p><div class="nv-tags" id="nvTags"></div></header>
         <div class="nv-body" id="nvBody"></div>
-        <footer class="nv-end"><span>✦ END ✦</span><button type="button" class="nv-back" data-back>← 回到書櫃</button></footer>
+        <footer class="nv-end"><span>✦ END ✦</span><button type="button" class="nv-back" data-back>← 回到圖庫</button></footer>
       </article>
     </section>
   </main>
@@ -1939,7 +1939,7 @@ body.is-editing .lib-info small:empty{display:block;min-height:1.2em}
     if(id==='home'||!pages.some(function(p){return p.id===id})) id='journal';
     pages.forEach(function(p){p.hidden=p.id!==id});
     document.querySelector('main').classList.toggle('wide',id==='home'||id==='journal');
-    var navId=(id==='chara'||id==='dreamer')?'cover':id;
+    var navId=(id==='chara'||id==='dreamer')?'cover':(id==='library'?'gallery':id);
     links.forEach(function(a){a.getAttribute('href')==='#'+navId?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current')});
   }
   window.addEventListener('hashchange',function(){if(gate.hidden){route();window.scrollTo(0,0)}});
@@ -1957,7 +1957,7 @@ body.is-editing .lib-info small:empty{display:block;min-height:1.2em}
   window.__cbRoute=route;
 })();
 </script>
-<script src="app.js?v=1791568536"></script>
+<script src="app.js?v=1791569001"></script>
 
 </body>
 </html>
