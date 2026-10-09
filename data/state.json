@@ -811,5 +811,20 @@
    "artist": "",
    "src": "music/mv17fxrh8nou.mp3"
   }
+ ],
+ "library": [
+  {
+   "id": "mv182ercm654",
+   "type": "comic",
+   "title": "新的漫畫",
+   "note": "",
+   "pages": [
+    "img/mv1836l4etxz.webp",
+    "img/mv1836sjirsf.webp",
+    "img/mv1836z6kwau.webp",
+    "img/mv183770ffdk.webp"
+   ],
+   "dir": "ltr"
+  }
  ]
 }
