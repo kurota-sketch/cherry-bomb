@@ -1589,7 +1589,8 @@
     mp.hidden = !T.length && !editing && !canEditView; // 站主（有編輯權限）就算還沒放歌也看得到
     mp.classList.toggle('playing', !au.paused);
     mp.classList.toggle('open', mOpen);
-    $('mpTitle').textContent = t ? (t.title || '未命名') : (editing ? '還沒有歌，點唱片按 ＋ 加歌' : '還沒有歌：按「編輯」後加入');
+    mp.classList.toggle('mini', !!mMini);
+    mpSetTitle(t ? (t.title || '未命名') : (editing ? '還沒有歌，點唱片按 ＋ 加歌' : '還沒有歌：按「編輯」後加入'));
     $('mpArtist').textContent = t ? (t.artist || '') : '';
     $('mpPlay').innerHTML = au.paused ? '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6a.9.9 0 0 0 1.4.8l7.2-4.8a.9.9 0 0 0 0-1.6L6.4 2.4A.9.9 0 0 0 5 3.2z"/></svg>' : '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="2.8" width="3.2" height="10.4" rx="1.2"/><rect x="9.3" y="2.8" width="3.2" height="10.4" rx="1.2"/></svg>';
     $('mpPlay').setAttribute('aria-label', au.paused ? '播放' : '暫停');
@@ -1603,7 +1604,7 @@
         [[b, 'title'], [sm, 'artist']].forEach(function (x) {
           x[0].contentEditable = 'plaintext-only'; x[0].title = x[1] === 'title' ? '點一下改歌名' : '點一下改歌手';
           if (!x[0].textContent) x[0].dataset.ph = x[1] === 'title' ? '歌名' : '歌手';
-          x[0].addEventListener('input', function () { o[x[1]] = x[0].innerText.trim(); markDirty(); if (i === mIdx) { $(x[1] === 'title' ? 'mpTitle' : 'mpArtist').textContent = o[x[1]]; } });
+          x[0].addEventListener('input', function () { o[x[1]] = x[0].innerText.trim(); markDirty(); if (i === mIdx) { if (x[1] === 'title') mpSetTitle(o.title); else $('mpArtist').textContent = o[x[1]]; } });
           x[0].addEventListener('click', function (e) { e.stopPropagation(); });
         });
         var ac = document.createElement('span'); ac.className = 'acts';
@@ -1627,7 +1628,24 @@
   $('mpPlay').addEventListener('click', mToggle);
   $('mpPrev').addEventListener('click', function () { if (tracks().length) mLoad(mIdx - 1, true); });
   $('mpNext').addEventListener('click', function () { if (tracks().length) mLoad(mIdx + 1, true); });
-  $('mpListBtn').addEventListener('click', function () { mOpen = !mOpen; renderMusic(); });
+  // 收起／展開：收起後只剩一顆唱片（播放中會轉、右上角有小紅點），點唱片就展開
+  var mMini = (function () { var v = mpLS('cb-mp-mini'); return v ? v === '1' : window.innerWidth < 640; })();
+  $('mpListBtn').addEventListener('click', function () {
+    if (mMini) { mMini = false; mpLS('cb-mp-mini', '0'); renderMusic(); return; }
+    mOpen = !mOpen; renderMusic();
+  });
+  $('mpMin').addEventListener('click', function (e) { e.stopPropagation(); mMini = true; mOpen = false; $('mp').classList.remove('vol'); mpLS('cb-mp-mini', '1'); renderMusic(); });
+  // 歌名太長時用跑馬燈
+  function mpSetTitle(txt) {
+    var box = $('mpTitleBox'), sp = $('mpTitle'); if (!box) return;
+    if (sp.dataset.t === txt && box.dataset.w == box.clientWidth) return;
+    sp.textContent = txt; sp.dataset.t = txt; box.classList.remove('mq');
+    requestAnimationFrame(function () {
+      box.dataset.w = box.clientWidth;
+      if (box.clientWidth && sp.scrollWidth > box.clientWidth + 2) { box.classList.add('mq'); box.style.setProperty('--mqd', Math.max(6, sp.scrollWidth / 28) + 's'); }
+    });
+  }
+  window.addEventListener('resize', function () { var sp = $('mpTitle'); if (sp) { var t = sp.dataset.t; sp.dataset.t = ''; mpSetTitle(t || ''); } });
   $('mpVol').value = mVol();
   function mVolUI() { var v = +$('mpVol').value; $('mpVolN').textContent = Math.round(v * 100); $('mp').classList.toggle('muted', v === 0); $('mp').classList.toggle('low', v > 0 && v < .5); }
   $('mpVol').addEventListener('input', function () { mpLS('cb-vol', this.value); applyVol(+this.value); mVolUI(); });

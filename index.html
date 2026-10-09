@@ -1367,6 +1367,22 @@ body.is-editing .arc-box [contenteditable]{outline:1px dashed #e0c9c6;outline-of
 @media (prefers-reduced-motion:reduce){.dos-radar.play *{animation:none!important}}
 .dos-radar .rd-in{position:absolute;left:0;top:0;transform-origin:0 0}
 .dos-radar .rd-in svg{position:absolute;inset:0;width:100%;height:100%}
+/* ---- 播放器：可以收起成一顆唱片、歌名跑馬燈 ---- */
+.mp-t{display:block;overflow:hidden;white-space:nowrap}
+.mp-t span{display:inline-block;padding-right:0}
+.mp-t.mq{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 8px,#000 calc(100% - 12px),transparent);mask-image:linear-gradient(90deg,transparent 0,#000 8px,#000 calc(100% - 12px),transparent)}
+.mp-t.mq span{animation:mpMq var(--mqd,10s) linear infinite;padding-right:2.5em}
+.mp-t.mq span::after{content:attr(data-t);padding-left:2.5em}
+@keyframes mpMq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.mp-t.mq span{animation:none}}
+.mp-ctl .mn svg{width:14px;height:14px;fill:none}
+.mp.mini{width:auto;border-radius:50%;background:transparent;box-shadow:none;overflow:visible}
+.mp.mini .mp-bar,.mp.mini .mp-info,.mp.mini .mp-ctl,.mp.mini .mp-vol,.mp.mini .mp-pop{display:none!important}
+.mp.mini .mp-main{padding:0}
+.mp.mini .mp-disc{width:48px;height:48px;box-shadow:inset 0 0 0 2px #2b1f21,0 0 0 3px #fff,0 0 0 4.5px #f1d2d6,0 6px 16px rgba(122,75,81,.25)}
+.mp.mini .mp-disc::after{content:"";position:absolute;right:-2px;top:-2px;width:10px;height:10px;border-radius:50%;background:#c9606d;box-shadow:0 0 0 2px #fff;opacity:0}
+.mp.mini.playing .mp-disc::after{opacity:1}
+.mp-disc{position:relative}
 /*cover*/
 .dos-back{display:inline-block;margin:0 0 12px;font:700 12px/1 "Courier Prime",var(--f-body);letter-spacing:.2em;color:#9a8587;text-decoration:none}
 .dos-back:hover{color:var(--ac)}
@@ -1988,8 +2004,8 @@ body.is-editing .arc-box [contenteditable]{outline:1px dashed #e0c9c6;outline-of
   <div class="mp-bar"><i id="mpBar"></i></div>
   <div class="mp-main">
     <button type="button" class="mp-disc" id="mpListBtn" aria-label="打開歌單"><i></i></button>
-    <div class="mp-info"><b id="mpTitle"></b><small id="mpArtist"></small></div>
-    <div class="mp-ctl"><button type="button" id="mpPrev" aria-label="上一首"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3" width="2" height="10" rx="1"/><path d="M13 3.6v8.8a.8.8 0 0 1-1.2.7L5.6 8.7a.8.8 0 0 1 0-1.4l6.2-4.4a.8.8 0 0 1 1.2.7z"/></svg></button><button type="button" id="mpPlay" class="pl" aria-label="播放"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6a.9.9 0 0 0 1.4.8l7.2-4.8a.9.9 0 0 0 0-1.6L6.4 2.4A.9.9 0 0 0 5 3.2z"/></svg></button><button type="button" id="mpNext" aria-label="下一首"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="11.5" y="3" width="2" height="10" rx="1"/><path d="M3 3.6v8.8a.8.8 0 0 0 1.2.7l6.2-4.4a.8.8 0 0 0 0-1.4L4.2 2.9A.8.8 0 0 0 3 3.6z"/></svg></button><button type="button" id="mpVolBtn" class="vb" aria-label="音量" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6.2v3.6c0 .4.3.7.7.7h2.1l3.4 2.8c.5.4 1.1 0 1.1-.6V3.3c0-.6-.6-1-1.1-.6L4.8 5.5H2.7c-.4 0-.7.3-.7.7z"/><path class="w1" d="M11 5.6a3.3 3.3 0 0 1 0 4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path class="w2" d="M12.6 3.9a5.7 5.7 0 0 1 0 8.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path class="mute" d="M11 6l3.5 4M14.5 6L11 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div>
+    <div class="mp-info"><b class="mp-t" id="mpTitleBox"><span id="mpTitle"></span></b><small id="mpArtist"></small></div>
+    <div class="mp-ctl"><button type="button" id="mpPrev" aria-label="上一首"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3" width="2" height="10" rx="1"/><path d="M13 3.6v8.8a.8.8 0 0 1-1.2.7L5.6 8.7a.8.8 0 0 1 0-1.4l6.2-4.4a.8.8 0 0 1 1.2.7z"/></svg></button><button type="button" id="mpPlay" class="pl" aria-label="播放"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6a.9.9 0 0 0 1.4.8l7.2-4.8a.9.9 0 0 0 0-1.6L6.4 2.4A.9.9 0 0 0 5 3.2z"/></svg></button><button type="button" id="mpNext" aria-label="下一首"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="11.5" y="3" width="2" height="10" rx="1"/><path d="M3 3.6v8.8a.8.8 0 0 0 1.2.7l6.2-4.4a.8.8 0 0 0 0-1.4L4.2 2.9A.8.8 0 0 0 3 3.6z"/></svg></button><button type="button" id="mpMin" class="mn" aria-label="收起播放器" title="收起"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6.5l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" id="mpVolBtn" class="vb" aria-label="音量" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6.2v3.6c0 .4.3.7.7.7h2.1l3.4 2.8c.5.4 1.1 0 1.1-.6V3.3c0-.6-.6-1-1.1-.6L4.8 5.5H2.7c-.4 0-.7.3-.7.7z"/><path class="w1" d="M11 5.6a3.3 3.3 0 0 1 0 4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path class="w2" d="M12.6 3.9a5.7 5.7 0 0 1 0 8.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path class="mute" d="M11 6l3.5 4M14.5 6L11 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div>
   </div>
   <div class="mp-vol" id="mpVolRow"><span>音量</span><input type="range" id="mpVol" min="0" max="1" step="0.05" aria-label="音量"><b id="mpVolN"></b></div>
   <div class="mp-pop">
@@ -2095,7 +2111,7 @@ body.is-editing .arc-box [contenteditable]{outline:1px dashed #e0c9c6;outline-of
   window.__cbRoute=route;
 })();
 </script>
-<script src="app.js?v=1791577363"></script>
+<script src="app.js?v=1791577553"></script>
 
 </body>
 </html>
