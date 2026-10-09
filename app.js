@@ -9,7 +9,7 @@
 
   var $ = function (id) { return document.getElementById(id); };
   var board = $('board'), grid = $('grid');
-  var CAT = { comm: '委託', comic: '漫畫', illus: '圖文' };
+  var CAT = { comm: '委託', comic: '', illus: '' };
 
   function src(path) { return localURL[path] || path; }
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
