@@ -45,7 +45,7 @@
     var u = {};
     Object.keys(state.slots).forEach(function (k) { if (state.slots[k]) u[state.slots[k]] = 1; });
     state.collage.forEach(function (c) { if (c.src) u[c.src] = 1; (c.srcs || []).forEach(function (p) { u[p] = 1; }); });
-    state.gallery.forEach(function (g) { u[g.src] = 1; });
+    state.gallery.forEach(function (g) { u[g.src] = 1; (g.alts || []).forEach(function (p) { u[p] = 1; }); });
     (state.wardrobe || []).forEach(function (o) { (o.imgs || []).forEach(function (p) { u[p] = 1; }); });
     (state.music || []).forEach(function (t) { if (t.src) u[t.src] = 1; });
     (state.library || []).forEach(function (w) { if (w.cover) u[w.cover] = 1; (w.pages || []).forEach(function (p) { u[p] = 1; }); (w.blocks || []).forEach(function (b) { if (b.src) u[b.src] = 1; }); });
@@ -900,26 +900,120 @@
     if (e.target.id === 'smDone' || e.target === this) { $('slideMgr').hidden = true; mgrIt = null; renderBoard(); }
   });
 
+  // ---------- 縮圖共用：封面位置（拖曳平移＋縮放）與拖曳排序 ----------
+  function applyPos(img, p, dy) {
+    if (!img) return; p = p || {};
+    var x = p.x == null ? 50 : p.x, y = p.y == null ? (dy == null ? 50 : dy) : p.y, z = p.z || 1;
+    img.style.objectPosition = x + '% ' + y + '%';
+    img.style.transformOrigin = x + '% ' + y + '%';
+    img.style.transform = z > 1 ? 'scale(' + z + ')' : '';
+  }
+  var panCur = null; // 正在調整封面的那一張（物件）
+  function panUI(box, img, it, key, dy, rerender) {
+    // box：有 overflow:hidden 的外框；it[key] 存 {x,y,z}
+    applyPos(img, it[key], dy);
+    if (!editing || panCur !== it || !img) return;
+    box.classList.add('panning');
+    var p = it[key] = it[key] || { x: 50, y: dy == null ? 50 : dy, z: 1 };
+    var bar = document.createElement('div'); bar.className = 'pan-bar';
+    bar.innerHTML = '<span>拖曳圖片調整位置</span><button type="button" data-z="-">－</button><button type="button" data-z="+">＋</button><button type="button" data-z="0">重設</button><button type="button" data-z="ok">完成</button>';
+    bar.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+    bar.addEventListener('click', function (e) {
+      e.stopPropagation(); var b = e.target.closest('button'); if (!b) return; var k = b.dataset.z;
+      if (k === 'ok') { panCur = null; rerender(); return; }
+      if (k === '0') { p.x = 50; p.y = dy == null ? 50 : dy; p.z = 1; }
+      if (k === '+') p.z = Math.min(4, Math.round((p.z + .2) * 10) / 10);
+      if (k === '-') p.z = Math.max(1, Math.round((p.z - .2) * 10) / 10);
+      applyPos(img, p, dy); markDirty();
+    });
+    box.appendChild(bar);
+    var drag = null;
+    box.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('.pan-bar')) return;
+      e.preventDefault(); e.stopPropagation(); drag = { x: e.clientX, y: e.clientY, px: p.x, py: p.y }; try { box.setPointerCapture(e.pointerId); } catch (er) {}
+    });
+    box.addEventListener('pointermove', function (e) {
+      if (!drag) return; var r = box.getBoundingClientRect(), k = 100 / p.z;
+      p.x = Math.max(0, Math.min(100, drag.px - (e.clientX - drag.x) / r.width * k));
+      p.y = Math.max(0, Math.min(100, drag.py - (e.clientY - drag.y) / r.height * k));
+      applyPos(img, p, dy);
+    });
+    var end = function () { if (drag) { drag = null; markDirty(); } };
+    box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
+    box.addEventListener('wheel', function (e) { e.preventDefault(); p.z = Math.max(1, Math.min(4, p.z * (e.deltaY < 0 ? 1.08 : 1 / 1.08))); applyPos(img, p, dy); markDirty(); }, { passive: false });
+    box.addEventListener('click', function (e) { if (e.target.closest('.pan-bar')) return; e.stopPropagation(); e.preventDefault(); }, true);
+  }
+  var sortJustDropped = 0;
+  function sortable(card, handle, idx, onMove) {
+    // 滑鼠：整張卡片直接拖；手機：按住左上角的把手拖
+    card.dataset.si = idx; card.classList.add('so');
+    function start(e, viaHandle) {
+      if (!editing || card.classList.contains('panning')) return;
+      if (!viaHandle && (e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('[contenteditable],input,select,button,.lib-tags,.x,.pan-bar'))) return;
+      var sx = e.clientX, sy = e.clientY, on = false, over = null, before = false, pid = e.pointerId;
+      if (viaHandle) e.preventDefault();
+      function mv(ev) {
+        if (ev.pointerId !== pid) return;
+        var dx = ev.clientX - sx, dy = ev.clientY - sy;
+        if (!on) { if (Math.abs(dx) + Math.abs(dy) < 6) return; on = true; card.classList.add('so-drag'); document.body.classList.add('so-active'); }
+        ev.preventDefault();
+        card.style.transform = 'translate(' + dx + 'px,' + dy + 'px) rotate(2deg)';
+        card.style.pointerEvents = 'none';
+        var el = document.elementFromPoint(ev.clientX, ev.clientY), t = el && el.closest('.so');
+        if (t && t.parentNode !== card.parentNode) t = null;
+        if (over && over !== t) over.classList.remove('so-l', 'so-r');
+        over = t !== card ? t : null;
+        if (over) { var r = over.getBoundingClientRect(); before = ev.clientX < r.left + r.width / 2; over.classList.toggle('so-l', before); over.classList.toggle('so-r', !before); }
+      }
+      function up(ev) {
+        if (ev.pointerId !== pid) return;
+        window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+        if (!on) return;
+        sortJustDropped = Date.now(); document.body.classList.remove('so-active');
+        card.classList.remove('so-drag'); card.style.transform = ''; card.style.pointerEvents = '';
+        if (over) { over.classList.remove('so-l', 'so-r'); var to = +over.dataset.si; if (!before && to < idx) to++; if (before && to > idx) to--; if (to !== idx) onMove(idx, to); }
+      }
+      window.addEventListener('pointermove', mv, { passive: false }); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+    }
+    card.addEventListener('pointerdown', function (e) { start(e, false); });
+    if (handle) handle.addEventListener('pointerdown', function (e) { e.stopPropagation(); start(e, true); });
+    card.addEventListener('click', function (e) { if (Date.now() - sortJustDropped < 300) { e.stopPropagation(); e.preventDefault(); } }, true);
+  }
+  function moveIn(arr, vis, from, to) { // vis：畫面上看得到的那幾個（可能有篩選）
+    var a = vis[from], b = vis[to]; if (!a || !b) return;
+    arr.splice(arr.indexOf(a), 1); var j = arr.indexOf(b); arr.splice(from < to ? j + 1 : j, 0, a); markDirty();
+  }
+  var GRIP = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="5.5" cy="4" r="1.3"/><circle cx="10.5" cy="4" r="1.3"/><circle cx="5.5" cy="8" r="1.3"/><circle cx="10.5" cy="8" r="1.3"/><circle cx="5.5" cy="12" r="1.3"/><circle cx="10.5" cy="12" r="1.3"/></svg>';
+
   // ---------- 圖庫 ----------
   var filter = 'all';
   function renderGallery() {
     if (typeof renderLib === "function" && state) setTimeout(function(){ try { renderLib(); } catch (e) {} }, 0);
     grid.innerHTML = '';
     var list = state.gallery.filter(function (g) { return filter === 'all' || g.cat === filter; });
-    list.forEach(function (g) {
+    list.forEach(function (g, gi) {
+      if (!g.id) g.id = uid();
       var f = document.createElement('figure');
-      f.innerHTML = (isVid(g.src) ? media(g.src) : '<img alt="' + esc(g.title) + '" loading="lazy" src="' + esc(src(g.src)) + '">') +
-'';
+      var n = (g.alts || []).length;
+      f.innerHTML = '<div class="g-th">' + (isVid(g.src) ? media(g.src) : '<img alt="' + esc(g.title || '') + '" loading="lazy" src="' + esc(src(g.src)) + '">') + '</div>' +
+        (n ? '<span class="g-alts" title="有 ' + (n + 1) + ' 張差分"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4.5" y="1.5" width="10" height="10" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 5v7.5A1.5 1.5 0 0 0 3.5 14H11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' + (n + 1) + '</span>' : '');
+      var th = f.querySelector('.g-th'), im = th.querySelector('img,video');
       f.onclick = function (e) {
-        if (e.target.closest('.x')) return;
-        gvOpen(g.id || (g.id = uid()), list);
+        if (e.target.closest('.x,.g-ed,.pan-bar') || f.querySelector('.panning')) return;
+        gvOpen(g.id, list);
       };
       if (editing) {
-        var x = document.createElement('button');
-        x.type = 'button'; x.className = 'btn small x'; x.textContent = '刪除';
-        x.onclick = function () { state.gallery = state.gallery.filter(function (o) { return o !== g; }); markDirty(); renderGallery(); };
-        f.appendChild(x);
+        var ed = document.createElement('div'); ed.className = 'g-ed';
+        ed.innerHTML = '<span class="so-h" title="拖曳換順序">' + GRIP + '</span><button type="button" data-a="pan" title="調整縮圖位置">✥</button><button type="button" data-a="del" title="刪除">×</button>';
+        ed.addEventListener('click', function (e) {
+          var b = e.target.closest('button'); if (!b) return; e.stopPropagation();
+          if (b.dataset.a === 'pan') { panCur = panCur === g ? null : g; renderGallery(); }
+          if (b.dataset.a === 'del') { if (!confirmDel()) { b.classList.add('arm'); return; } state.gallery = state.gallery.filter(function (o) { return o !== g; }); markDirty(); renderGallery(); }
+        });
+        f.appendChild(ed);
+        sortable(f, ed.querySelector('.so-h'), gi, function (a, b) { moveIn(state.gallery, list, a, b); renderGallery(); });
       }
+      panUI(th, im, g, 'pos', null, renderGallery);
       grid.appendChild(f);
     });
     $('gEmpty').hidden = list.length > 0;
@@ -945,7 +1039,8 @@
     heart: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></svg>'
   };
   var GV_ADD = [['text', '文字'], ['link', '連結'], ['date', '日期'], ['globe', '平台'], ['heart', '心情']];
-  var gvList = [], gvId = null, gvAdding = false;
+  var gvList = [], gvId = null, gvAdding = false, gvVar = 0;
+  function gvImgs(g) { return [g.src].concat(g.alts || []); }
   function gvAt(g) { if (g.at) return g.at; var t = parseInt(String(g.id || '').slice(0, -4), 36); return t > 1.6e12 && t < 4e12 ? new Date(t).toISOString() : ''; } // 舊圖沒有建立時間：從上傳時產生的編號推回去
   function gvItem() { return (state.gallery || []).filter(function (g) { return g.id === gvId; })[0]; }
   function gvFmt(iso) {
@@ -955,18 +1050,26 @@
   }
   function gvLocal(iso) { var d = new Date(iso); if (!iso || isNaN(d)) return ''; d = new Date(d.getTime() - d.getTimezoneOffset() * 60000); return d.toISOString().slice(0, 16); }
   function gvOpen(id, list) {
-    gvId = id; gvList = (list || state.gallery || []).map(function (g) { return g.id || (g.id = uid()); }); gvAdding = false;
+    gvId = id; gvVar = 0; gvList = (list || state.gallery || []).map(function (g) { return g.id || (g.id = uid()); }); gvAdding = false;
     $('gv').hidden = false; document.body.style.overflow = 'hidden'; gvRender();
   }
   function gvClose() { $('gv').hidden = true; document.body.style.overflow = ''; var v = $('gvMedia').querySelector('video'); if (v) v.pause(); gvId = null; }
-  function gvStep(d) { var i = gvList.indexOf(gvId); if (i < 0 || gvList.length < 2) return; gvId = gvList[(i + d + gvList.length) % gvList.length]; gvAdding = false; gvRender(); }
+  function gvStep(d) {
+    // 先翻同一張的差分，翻完再到下一張
+    var g = gvItem(), n = g ? gvImgs(g).length : 1;
+    if (gvVar + d >= 0 && gvVar + d < n) { gvVar += d; gvRender(); return; }
+    var i = gvList.indexOf(gvId); if (i < 0 || gvList.length < 2) return;
+    gvId = gvList[(i + d + gvList.length) % gvList.length]; gvAdding = false;
+    var g2 = gvItem(); gvVar = d < 0 && g2 ? gvImgs(g2).length - 1 : 0; gvRender();
+  }
   function gvSet(g, fn) { fn(g); markDirty(); renderGallery(); }
   function gvRender() {
     var g = gvItem(); if (!g) { gvClose(); return; }
     $('gv').style.bottom = editing && !$('editBar').hidden ? $('editBar').offsetHeight + 'px' : '';
-    var m = $('gvMedia');
-    m.innerHTML = isVid(g.src) ? '<video controls loop playsinline src="' + esc(src(g.src)) + '"></video>' : '<img alt="' + esc(g.title || '') + '" src="' + esc(src(g.src)) + '">';
-    $('gvPrev').hidden = $('gvNext').hidden = gvList.length < 2;
+    var m = $('gvMedia'), ims = gvImgs(g); if (gvVar >= ims.length) gvVar = ims.length - 1; var cur = ims[gvVar];
+    m.innerHTML = (isVid(cur) ? '<video controls loop playsinline src="' + esc(src(cur)) + '"></video>' : '<img alt="' + esc(g.title || '') + '" src="' + esc(src(cur)) + '">') +
+      (ims.length > 1 ? '<div class="gv-dots">' + ims.map(function (_, k) { return '<i' + (k === gvVar ? ' class="on"' : '') + '></i>'; }).join('') + '<b>差分 ' + (gvVar + 1) + ' / ' + ims.length + '</b></div>' : '');
+    $('gvPrev').hidden = $('gvNext').hidden = gvList.length < 2 && ims.length < 2;
     var side = $('gvSide'); side.innerHTML = '';
     var x = document.createElement('button'); x.type = 'button'; x.className = 'gv-x'; x.textContent = '×'; x.setAttribute('aria-label', '關閉'); x.onclick = gvClose; side.appendChild(x);
     var t = document.createElement('h2'); t.className = 'gv-title'; t.textContent = g.title || ''; side.appendChild(t);
@@ -1020,6 +1123,37 @@
         else c.textContent = pr.v;
       }
     });
+    // 差分
+    if (editing || ims.length > 1) {
+      var vr = document.createElement('div'); vr.className = 'gv-vars';
+      vr.innerHTML = '<p>' + '<svg class="ic" viewBox="0 0 16 16"><rect x="4.5" y="1.5" width="10" height="10" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 5v7.5A1.5 1.5 0 0 0 3.5 14H11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' + '差分<small>' + (editing ? '第一張是縮圖；點小圖可以切換' : '左右滑可以看') + '</small></p>';
+      var rowv = document.createElement('div'); rowv.className = 'gv-vlist'; vr.appendChild(rowv);
+      ims.forEach(function (pth, k) {
+        var t = document.createElement('button'); t.type = 'button'; t.className = 'gv-v' + (k === gvVar ? ' on' : '');
+        t.innerHTML = isVid(pth) ? '<span>▶</span>' : '<img alt="" src="' + esc(src(pth)) + '">';
+        t.onclick = function () { gvVar = k; gvRender(); };
+        if (editing) {
+          var tl = document.createElement('span'); tl.className = 'gv-vt';
+          if (k > 0) tl.innerHTML += '<i data-v="main" title="設成第一張（縮圖）">★</i><i data-v="del" title="拿掉這張差分">×</i>';
+          tl.onclick = function (e) {
+            var a = e.target.dataset.v; if (!a) return; e.stopPropagation();
+            gvSet(g, function (o) {
+              if (a === 'del') { o.alts.splice(k - 1, 1); if (gvVar >= k) gvVar--; }
+              if (a === 'main') { var old = o.src; o.src = o.alts[k - 1]; o.alts[k - 1] = old; if (!o.credit && creditOf(old)) o.credit = creditOf(old).n; gvVar = 0; }
+            });
+            gvRender();
+          };
+          t.appendChild(tl);
+        }
+        rowv.appendChild(t);
+      });
+      if (editing) {
+        var av = document.createElement('button'); av.type = 'button'; av.className = 'gv-v add'; av.textContent = '＋'; av.title = '新增差分（可以一次選很多張）';
+        av.onclick = function () { libPick(function (ps) { g.alts = (g.alts || []).concat(ps); gvVar = gvImgs(g).length - 1; renderGallery(); gvRender(); }); };
+        rowv.appendChild(av);
+      }
+      side.appendChild(vr);
+    }
     if (editing) {
       var add = document.createElement('button'); add.type = 'button'; add.className = 'gv-add'; add.innerHTML = '＋ 新增欄位';
       add.onclick = function () { gvAdding = !gvAdding; gvRender(); }; side.appendChild(add);
@@ -1618,17 +1752,19 @@
       }
       buildTags(false);
       var go = function () { location.hash = 'read-' + w.id; };
-      c.addEventListener('click', function (e) { if (e.target.closest('.lib-acts,[contenteditable],.lib-tags')) return; go(); });
+      c.addEventListener('click', function (e) { if (e.target.closest('.lib-acts,[contenteditable],.lib-tags,.pan-bar,.so-h') || c.querySelector('.panning')) return; go(); });
+      panUI(c.querySelector('.lib-cover'), c.querySelector('.lib-cover img'), w, 'coverPos', 20, renderLib);
       c.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.target.closest('[contenteditable],input,button')) go(); });
       if (editing) {
         var a = document.createElement('div'); a.className = 'lib-acts';
-        var swap = function (d) { var o = vis[vi + d]; if (!o) return; var j = L.indexOf(o); L[i] = o; L[j] = w; markDirty(); renderLib(); };
-        [['換封面', function () { libPick(function (ps) { w.cover = ps[0]; renderLib(); }); }],
-         ['←', function () { swap(-1); }], ['→', function () { swap(1); }],
+        [['換封面', function () { libPick(function (ps) { w.cover = ps[0]; w.coverPos = null; renderLib(); }); }],
+         ['調整封面位置', function () { panCur = panCur === w ? null : w; renderLib(); }],
          ['刪除', function () { if (libDelArm !== w.id) { libDelArm = w.id; status('再按一次「刪除」就會刪掉這部作品（可以用復原救回來）'); return; } libDelArm = ''; L.splice(i, 1); markDirty(); renderLib(); }]].forEach(function (t) {
           var b = document.createElement('button'); b.type = 'button'; b.textContent = t[0]; b.onclick = function (e) { e.stopPropagation(); t[1](); }; a.appendChild(b);
         });
         c.appendChild(a);
+        var hd = document.createElement('span'); hd.className = 'so-h lib-grip'; hd.title = '拖曳換順序'; hd.innerHTML = GRIP; c.appendChild(hd);
+        sortable(c, hd, vi, function (x, y) { moveIn(L, vis, x, y); renderLib(); });
       }
       g.appendChild(c);
     });
