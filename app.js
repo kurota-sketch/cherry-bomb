@@ -1244,7 +1244,8 @@
       status('已儲存 ✓ 大家打開網站都會看到新版本');
     }).catch(function (err) {
       var c = err && err.code;
-      if (c === 'conflict') status('別的地方剛存了新版本，頁面會自動重新載入');
+      if (c === 'gh_auth') status('GitHub 鑰匙無效、過期或沒有寫入權限：按右下角的鑰匙重新登入');
+      else if (c === 'conflict') status('GitHub 上剛好有別的更新，重新整理頁面後再存一次');
       else if (c === 'not_writer' || c === 'not_granted' || c === 'capability_disabled' || c === 'not_declared')
         status('這裡無法儲存：網站公開分享時或沒有編輯權限時不能存。先把分享改回私人再編輯。');
       else if (c === 'too_large') status('這次加的圖太多太大了，分幾次存');
@@ -1371,11 +1372,93 @@
     .then(function (r) { if (!r.ok) throw 0; return r.json(); })
     .catch(function () { return DEFAULT; })
     .then(function (s) {
+      if (window.__cbFresh) return; // 站主已從 GitHub 讀到更新的版本
       state = s; state.slots = state.slots || {}; state.collage = state.collage || []; state.gallery = state.gallery || [];
       savedPaths = usedPaths();
       setTimeout(function () { commitSnap(); }, 0);
       renderAll();
     });
+
+  // ---------- GitHub 版：只有站主登入（貼上專屬鑰匙）後才能編輯，儲存直接寫進 GitHub ----------
+  var GH = (function () {
+    if (window.claude && window.claude.use) return null;
+    var m = /^([^.]+)\.github\.io$/i.exec(location.hostname); if (!m) return null;
+    var seg = location.pathname.split('/').filter(Boolean)[0];
+    return { owner: m[1], repo: seg && !/\.html?$/.test(seg) ? seg : m[1] + '.github.io', branch: 'main' };
+  })();
+  if (GH) (function () {
+    var KEY = 'cb-gh-token';
+    var tok = function (v) { try { if (v === undefined) return localStorage.getItem(KEY) || ''; if (v) localStorage.setItem(KEY, v); else localStorage.removeItem(KEY); } catch (e) { return ''; } };
+    function api(path, opt) {
+      opt = opt || {};
+      return fetch('https://api.github.com/repos/' + GH.owner + '/' + GH.repo + path, {
+        method: opt.method || 'GET', cache: 'no-store',
+        headers: { Authorization: 'Bearer ' + tok(), Accept: opt.raw ? 'application/vnd.github.raw+json' : 'application/vnd.github+json', 'Content-Type': 'application/json' },
+        body: opt.body ? JSON.stringify(opt.body) : undefined
+      }).then(function (r) {
+        if (r.ok) return opt.raw ? r.text() : r.json();
+        var code = (r.status === 401 || r.status === 403 || r.status === 404) ? 'gh_auth' : (r.status === 409 || r.status === 422) ? 'conflict' : 'gh_fail';
+        throw { code: code, status: r.status };
+      });
+    }
+    function b64(blob) {
+      return new Promise(function (ok, no) { var fr = new FileReader(); fr.onload = function () { ok(String(fr.result).split(',')[1] || ''); }; fr.onerror = no; fr.readAsDataURL(blob); });
+    }
+    // 一次儲存 = 一個 commit（圖片、文字一起），沒用到的舊圖一起刪掉
+    function publish(files) {
+      var head, base, have = {};
+      return api('/git/ref/heads/' + GH.branch).then(function (r) { head = r.object.sha; return api('/git/commits/' + head); })
+        .then(function (c) { base = c.tree.sha; return api('/git/trees/' + base + '?recursive=1'); })
+        .then(function (t) {
+          (t.tree || []).forEach(function (x) { have[x.path] = 1; });
+          var entries = [];
+          return Object.keys(files).reduce(function (pr, path) {
+            return pr.then(function () {
+              var f = files[path];
+              if (f === null) { if (have[path]) entries.push({ path: path, mode: '100644', type: 'blob', sha: null }); return; }
+              var body = f && f.content != null ? Promise.resolve({ content: f.content, encoding: 'utf-8' }) : b64(f).then(function (c) { return { content: c, encoding: 'base64' }; });
+              return body.then(function (b) { return api('/git/blobs', { method: 'POST', body: b }); })
+                .then(function (r) { entries.push({ path: path, mode: '100644', type: 'blob', sha: r.sha }); });
+            });
+          }, Promise.resolve()).then(function () { return entries; });
+        })
+        .then(function (entries) { return api('/git/trees', { method: 'POST', body: { base_tree: base, tree: entries } }); })
+        .then(function (t) { return api('/git/commits', { method: 'POST', body: { message: '網站內容更新（從網站儲存）', tree: t.sha, parents: [head] } }); })
+        .then(function (c) { return api('/git/refs/heads/' + GH.branch, { method: 'PATCH', body: { sha: c.sha } }); })
+        .then(function () { setTimeout(function () { status('已存到 GitHub ✓ 大約 1～3 分鐘後，大家看到的網站就會更新'); }, 50); });
+    }
+    // 登入後改讀 GitHub 上最新的資料（網站本身可能還在更新中，避免舊資料蓋掉新資料）
+    function loadFresh() {
+      return api('/contents/data/state.json?ref=' + GH.branch, { raw: true }).then(function (t) {
+        var s = JSON.parse(t); state = s; state.slots = state.slots || {}; state.collage = state.collage || []; state.gallery = state.gallery || [];
+        window.__cbFresh = true; savedPaths = usedPaths(); setTimeout(function () { commitSnap(); }, 0); renderAll();
+      });
+    }
+    function enable() {
+      art = { publish: publish }; canEditView = true;
+      if (!editing) { $('editFab').hidden = false; $('navEdit').hidden = false; }
+      $('ghKey').classList.add('on'); $('ghKey').title = '已登入（點一下可以登出）';
+      renderMusic();
+    }
+    function openDlg() { $('ghDlg').hidden = false; $('ghTok').value = ''; $('ghErr').textContent = ''; setTimeout(function () { $('ghTok').focus(); }, 30); }
+    $('ghKey').hidden = false;
+    $('ghKey').addEventListener('click', function () {
+      if (canEditView) { if (dirty && !confirmLeave()) return; tok(''); location.reload(); return; }
+      openDlg();
+    });
+    function confirmLeave() { status('還有沒儲存的變更，先按「儲存」；再按一次鑰匙就會登出'); var a = $('ghKey').dataset.arm === '1'; $('ghKey').dataset.arm = '1'; return a; }
+    $('ghCancel').addEventListener('click', function () { $('ghDlg').hidden = true; });
+    $('ghOk').addEventListener('click', function () {
+      var v = $('ghTok').value.trim(); if (!v) return;
+      tok(v); $('ghErr').textContent = '確認中…';
+      api('/git/ref/heads/' + GH.branch).then(function () { return loadFresh(); }).then(function () {
+        $('ghDlg').hidden = true; enable(); status('登入成功 ✓ 按「編輯」開始修改');
+      }).catch(function () { tok(''); $('ghErr').textContent = '這把鑰匙不能用：請確認它有 cherry-bomb 專案的「Contents：Read and write」權限，而且還沒過期。'; });
+    });
+    $('ghTok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('ghOk').click(); if (e.key === 'Escape') $('ghCancel').click(); });
+    if (tok()) api('/git/ref/heads/' + GH.branch).then(function () { return loadFresh(); }).then(enable).catch(function (e) { if (e && e.code === 'gh_auth') tok(''); });
+    if (location.hash === '#admin' && !tok()) openDlg();
+  })();
 
   // 只有能編輯的人會看到「編輯」按鈕
   if (window.claude && window.claude.use) {

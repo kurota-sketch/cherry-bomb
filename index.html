@@ -1,4 +1,9 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>[hidden]{display:none!important}</style>
 <title>KATSUMIA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1048,6 +1053,17 @@ body:has(#gate:not([hidden])) .mp{display:none}
 .mp-list .acts{display:flex;gap:2px}
 .mp-list .acts button{width:22px;height:22px;border:0;border-radius:50%;background:#fff;color:#c9606d;cursor:pointer;font-size:11px}
 @media (max-width:560px){.mp{left:10px;bottom:10px;width:auto;max-width:calc(100vw - 20px)}.mp:not(.open) .mp-info{max-width:120px}}
+/* GitHub 版站主登入 */
+.gh-key{display:block;margin:10px auto 0;width:22px;height:22px;border:0;border-radius:50%;background:none;color:#d9c6c4;font-size:14px;line-height:1;cursor:pointer;opacity:.55}
+.gh-key:hover{opacity:1;color:#c9606d}
+.gh-key.on{opacity:1;color:#c9606d}
+.gh-dlg{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:16px;background:rgba(58,42,44,.35)}
+.gh-box{width:min(420px,100%);background:#fffdfb;border-radius:18px;padding:20px 20px 16px;box-shadow:0 0 0 4px #fff,0 0 0 5.5px #f1d2d6,0 20px 40px rgba(58,42,44,.25)}
+.gh-box h3{margin:0 0 6px;color:#7a4b51}
+.gh-box p{margin:0 0 10px;font-size:.85rem;color:#7a6668;line-height:1.6}
+.gh-box input{width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #f1d2d6;border-radius:10px;font:inherit}
+.gh-err{color:#c9606d!important;min-height:1.2em;margin-top:8px!important}
+.gh-acts{display:flex;justify-content:flex-end;gap:8px}
 /*cover*/
 .dos-back{display:inline-block;margin:0 0 12px;font:700 12px/1 "Courier Prime",var(--f-body);letter-spacing:.2em;color:#9a8587;text-decoration:none}
 .dos-back:hover{color:var(--ac)}
@@ -1112,6 +1128,8 @@ body:has(#gate:not([hidden])) .mp{display:none}
 
 /*/cover*/
 </style>
+</head>
+<body>
 
 
   <div class="tl-deco" aria-hidden="true">
@@ -1721,7 +1739,17 @@ body:has(#gate:not([hidden])) .mp{display:none}
 <footer>
   © 2026 KATSUMIA ｜ 爆豪勝己 × 緋垣未亜<br>
   <button type="button" id="toGate">回到入口</button>
+  <button type="button" id="ghKey" class="gh-key" title="站主登入" aria-label="站主登入" hidden>⚿</button>
 </footer>
+<div class="gh-dlg" id="ghDlg" hidden role="dialog" aria-label="站主登入">
+  <div class="gh-box">
+    <h3>站主登入</h3>
+    <p>貼上你在 GitHub 產生的專屬鑰匙（只能改這個網站的那一把）。鑰匙只會存在這台裝置的瀏覽器裡。</p>
+    <input type="password" id="ghTok" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+    <p class="gh-err" id="ghErr"></p>
+    <div class="gh-acts"><button type="button" class="btn small ghost" id="ghCancel">取消</button><button type="button" class="btn small" id="ghOk">登入</button></div>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -1761,4 +1789,5 @@ body:has(#gate:not([hidden])) .mp{display:none}
 </script>
 <script src="app.js"></script>
 
-</body></html>
+</body>
+</html>
