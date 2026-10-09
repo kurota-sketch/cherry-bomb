@@ -1491,7 +1491,32 @@
   var cmW = null;
   function cmIdx() { var t = $('cmTrack'); return Math.round(Math.abs(t.scrollLeft) / (t.clientWidth || 1)); }
   function cmGo(d) { var t = $('cmTrack'); var rtl = t.classList.contains('rtl'); t.scrollBy({ left: (rtl ? -d : d) * t.clientWidth, behavior: 'smooth' }); }
-  function cmCount() { var P = (cmW && cmW.pages) || []; $('cmPage').textContent = P.length ? (Math.min(cmIdx(), P.length - 1) + 1) + ' / ' + P.length : ''; }
+  function cmTo(i, smooth) { var t = $('cmTrack'); t.scrollTo({ left: (t.classList.contains('rtl') ? -1 : 1) * i * t.clientWidth, behavior: smooth ? 'smooth' : 'auto' }); }
+  function cmCount() {
+    var P = (cmW && cmW.pages) || [], i = Math.min(cmIdx(), Math.max(0, P.length - 1)), sl = $('cmSlider');
+    $('cmPage').textContent = P.length ? (i + 1) + ' / ' + P.length : '';
+    sl.max = Math.max(1, P.length); if (document.activeElement !== sl) sl.value = i + 1;
+    $('cmA').textContent = P.length ? i + 1 : 0; $('cmB').textContent = P.length;
+    sl.parentNode.classList.toggle('rtl', !!(cmW && cmW.dir === 'rtl')); sl.parentNode.hidden = P.length < 2;
+  }
+  // 頁數拉桿：電腦上拖拉直接跳頁
+  $('cmSlider').addEventListener('input', function () { cmTo(this.value - 1); $('cmA').textContent = this.value; });
+  // 滑鼠按住拖曳也能翻頁；滾輪往下＝下一頁
+  (function () {
+    var t = $('cmTrack'), d = null, wl = 0;
+    t.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse' || e.button !== 0) return; d = { x: e.clientX, s: t.scrollLeft, i: cmIdx() }; t.classList.add('drag'); e.preventDefault(); });
+    window.addEventListener('pointermove', function (e) { if (!d) return; t.scrollLeft = d.s - (e.clientX - d.x); });
+    window.addEventListener('pointerup', function (e) {
+      if (!d) return; var dx = e.clientX - d.x, i = d.i, rtl = t.classList.contains('rtl'); d = null; t.classList.remove('drag');
+      if (Math.abs(dx) > 50) i += (dx < 0 ? 1 : -1) * (rtl ? -1 : 1);
+      var n = ((cmW && cmW.pages) || []).length; cmTo(Math.max(0, Math.min(n - 1, i)), true);
+    });
+    t.addEventListener('wheel', function (e) {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; e.preventDefault();
+      var now = Date.now(); if (now - wl < 450 || Math.abs(e.deltaY) < 4) return; wl = now;
+      var n = ((cmW && cmW.pages) || []).length; cmTo(Math.max(0, Math.min(n - 1, cmIdx() + (e.deltaY > 0 ? 1 : -1))), true);
+    }, { passive: false });
+  })();
   function renderComic(w, keep) {
     cmW = w; var t = $('cmTrack'), at = keep ? cmIdx() : 0, P = w.pages = w.pages || [];
     $('cmTitle').textContent = w.title || '';

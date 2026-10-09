@@ -1130,7 +1130,11 @@ body.is-editing .nv-h:empty::before{content:"（小標題）";opacity:.4}
 .cm-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:64px;border:0;background:rgba(255,255,255,.08);color:#fff;font-size:28px;cursor:pointer;border-radius:10px}
 .cm-nav.prev{left:10px}.cm-nav.next{right:10px}
 .cm-nav:hover{background:rgba(255,255,255,.18)}
-@media (hover:none){.cm-nav{display:none}}
+@media (hover:none) and (pointer:coarse){.cm-nav{display:none}}
+.cm-track{cursor:grab}.cm-track.drag{cursor:grabbing;scroll-snap-type:none}
+.cm-bar{display:flex;align-items:center;gap:12px;padding:6px 18px 12px;font:400 12px/1 "Courier Prime",monospace;color:rgba(255,255,255,.75)}
+.cm-bar input{flex:1;accent-color:#e0844e;height:20px;cursor:pointer}
+.cm-bar.rtl input{direction:rtl}
 .cm-edit{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:8px 10px 12px;background:rgba(0,0,0,.25)}
 .cm-edit button{padding:5px 12px;border:1px solid rgba(255,255,255,.3);border-radius:999px;background:none;color:#fff;font-size:12px;cursor:pointer}
 .cm-edit button:hover{background:rgba(255,255,255,.12)}
@@ -1792,6 +1796,7 @@ body.is-editing .nv-h:empty::before{content:"（小標題）";opacity:.4}
   <div class="cm-top"><button type="button" class="cm-x" id="cmClose" aria-label="關閉">✕</button><b id="cmTitle"></b><span id="cmPage"></span></div>
   <div class="cm-track" id="cmTrack"></div>
   <button type="button" class="cm-nav prev" id="cmPrev" aria-label="上一頁">‹</button><button type="button" class="cm-nav next" id="cmNext" aria-label="下一頁">›</button>
+  <div class="cm-bar"><span id="cmA">1</span><input type="range" id="cmSlider" min="1" max="1" value="1" aria-label="頁數"><span id="cmB">1</span></div>
   <div class="cm-edit" id="cmEdit" hidden></div>
 </div>
 <input type="file" id="libPick" accept="image/*" multiple hidden>
