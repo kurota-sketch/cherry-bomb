@@ -338,8 +338,33 @@
       });
       box.querySelector('.val').setAttribute('points', pts.join(' '));
       box.querySelector('.vdots').innerHTML = dots;
+      fitRadar(box);
     });
   }
+  // 讓「圖＋文字」整組置中，跟外框上下左右的距離都一樣（依實際字寬量出來）
+  function fitRadar(box) {
+    var W = box.clientWidth; if (!W) return;
+    var inn = box.querySelector('.rd-in');
+    if (!inn) {
+      inn = document.createElement('div'); inn.className = 'rd-in';
+      [].slice.call(box.children).forEach(function (el) { if (!el.classList.contains('rd-cap')) inn.appendChild(el); });
+      box.insertBefore(inn, box.firstChild);
+    }
+    inn.style.width = inn.style.height = W + 'px'; inn.style.transform = 'none';
+    var o = inn.getBoundingClientRect(), u = null;
+    var add = function (r) {
+      var x0 = r.left - o.left, y0 = r.top - o.top, x1 = r.right - o.left, y1 = r.bottom - o.top;
+      u = u ? { l: Math.min(u.l, x0), t: Math.min(u.t, y0), r: Math.max(u.r, x1), b: Math.max(u.b, y1) } : { l: x0, t: y0, r: x1, b: y1 };
+    };
+    var rings = box.querySelectorAll('.ring'); if (rings.length) add(rings[rings.length - 1].getBoundingClientRect());
+    [].forEach.call(box.querySelectorAll('.rd-l span,.rd-l b'), function (el) { add(el.getBoundingClientRect()); });
+    if (!u) return;
+    var P = Math.round(W * 0.08), uw = u.r - u.l, uh = u.b - u.t, sc = Math.min(1.15, (W - 2 * P) / uw);
+    box.style.aspectRatio = 'auto'; box.style.height = Math.round(uh * sc + 2 * P) + 'px';
+    inn.style.transform = 'translate(' + (P - u.l * sc).toFixed(1) + 'px,' + (P - u.t * sc).toFixed(1) + 'px) scale(' + sc.toFixed(4) + ')';
+  }
+  window.addEventListener('resize', function () { [].forEach.call(document.querySelectorAll('.dos-radar'), fitRadar); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { [].forEach.call(document.querySelectorAll('.dos-radar'), fitRadar); });
   function renderMq() {
     [].forEach.call(document.querySelectorAll('.dos-mq'), function (m) {
       var t = (m.querySelector('.mq-src').textContent || '').trim() + ' ', h = '';
@@ -359,7 +384,7 @@
     var io = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
         var b = e.target;
-        if (e.isIntersecting) { if (!b.dataset.played) { b.classList.remove('play'); void b.offsetWidth; b.classList.add('play'); b.dataset.played = '1'; } }
+        if (e.isIntersecting) { if (!b.dataset.played) { b.classList.remove('play'); fitRadar(b); void b.offsetWidth; b.classList.add('play'); b.dataset.played = '1'; } }
         else if (!e.target.offsetParent) delete b.dataset.played; // 離開頁面（被隱藏）後，下次進來再播一次
       });
     }, { threshold: 0.35 });
