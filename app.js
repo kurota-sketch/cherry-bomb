@@ -1442,38 +1442,58 @@
       editable(c.querySelector('b'), function () { return w.title; }, function (v) { w.title = v; });
       editable(c.querySelector('small'), function () { return w.note; }, function (v) { w.note = v; }, true);
       var tw = c.querySelector('.lib-tags'); w.tags = w.tags || [];
-      w.tags.forEach(function (t, ti) {
-        var p = tagPill(t);
-        if (editing) {
-          p.title = '點一下換顏色'; p.classList.add('ed');
-          p.onclick = function (e) { e.stopPropagation(); state.libTags = state.libTags || {}; state.libTags[t] = (tagCol(t) + 1) % TAGC.length; markDirty(); renderLib(); };
-          var x = document.createElement('i'); x.textContent = '×'; x.title = '拿掉這個標籤';
-          x.onclick = function (e) { e.stopPropagation(); w.tags.splice(ti, 1); markDirty(); renderLib(); };
-          p.appendChild(x);
-        }
-        tw.appendChild(p);
-      });
-      if (editing) {
-        var add = document.createElement('button'); add.type = 'button'; add.className = 'lib-tadd'; add.textContent = '＋ 標籤';
-        add.onclick = function (e) {
-          e.stopPropagation();
-          var inp = document.createElement('input'); inp.className = 'lib-tin'; inp.setAttribute('list', 'libTagList'); inp.placeholder = '輸入標籤，按 Enter';
-          var done = false, commit = function (keep) {
-            if (done) return; done = true; var v = inp.value.trim();
-            if (v && w.tags.indexOf(v) < 0) { w.tags.push(v); markDirty(); }
-            renderLib();
-            if (keep && v) { var again = $('libGrid').querySelectorAll('.lib-card')[vi]; var bt = again && again.querySelector('.lib-tadd'); if (bt) bt.click(); }
-          };
-          inp.onclick = function (ev) { ev.stopPropagation(); };
-          inp.onkeydown = function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); commit(true); } if (ev.key === 'Escape') { done = true; renderLib(); } };
-          inp.onblur = function () { commit(false); };
-          add.replaceWith(inp); inp.focus();
-        };
-        tw.appendChild(add);
+      // 標籤：一部作品可以有很多個；輸入框按 Enter（或用逗號、頓號隔開）就加一個，輸入框會留著繼續加
+      var tagEditOpen = false;
+      function addTags(v) {
+        var n = 0;
+        String(v || '').split(/[,，、;；\n]+/).forEach(function (t) { t = t.trim(); if (t && w.tags.indexOf(t) < 0) { w.tags.push(t); n++; } });
+        if (n) markDirty(); return n;
       }
+      function buildTags(openInput) {
+        tw.innerHTML = '';
+        w.tags.forEach(function (t, ti) {
+          var p = tagPill(t);
+          if (editing) {
+            p.title = '點一下換顏色'; p.classList.add('ed');
+            p.onclick = function (e) { e.stopPropagation(); state.libTags = state.libTags || {}; state.libTags[t] = (tagCol(t) + 1) % TAGC.length; markDirty(); renderLib(); };
+            var x = document.createElement('i'); x.textContent = '×'; x.title = '拿掉這個標籤';
+            x.onclick = function (e) { e.stopPropagation(); w.tags.splice(ti, 1); markDirty(); buildTags(tagEditOpen); };
+            p.appendChild(x);
+          }
+          tw.appendChild(p);
+        });
+        if (!editing) return;
+        if (!openInput) {
+          var add = document.createElement('button'); add.type = 'button'; add.className = 'lib-tadd'; add.textContent = '＋ 標籤';
+          add.onclick = function (e) { e.stopPropagation(); tagEditOpen = true; buildTags(true); };
+          tw.appendChild(add); return;
+        }
+        var box = document.createElement('span'); box.className = 'lib-tbox';
+        var inp = document.createElement('input'); inp.className = 'lib-tin'; inp.setAttribute('list', 'libTagList'); inp.placeholder = '標籤名稱';
+        var ok = document.createElement('button'); ok.type = 'button'; ok.className = 'lib-tok'; ok.textContent = '加入'; ok.title = '加入這個標籤（之後可以繼續加）';
+        var fin = document.createElement('button'); fin.type = 'button'; fin.className = 'lib-tfin'; fin.textContent = '完成';
+        box.appendChild(inp); box.appendChild(ok); box.appendChild(fin); tw.appendChild(box);
+        var commitKeep = function () { addTags(inp.value); buildTags(true); };
+        var close = function () { addTags(inp.value); tagEditOpen = false; renderLib(); };
+        [inp, ok, fin, box].forEach(function (el) { el.addEventListener('click', function (ev) { ev.stopPropagation(); }); });
+        ok.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        fin.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        ok.onclick = function (ev) { ev.stopPropagation(); commitKeep(); };
+        fin.onclick = function (ev) { ev.stopPropagation(); close(); };
+        inp.addEventListener('keydown', function (ev) {
+          if (ev.isComposing || ev.keyCode === 229) return; // 中文輸入法選字時的 Enter 不算
+          if (ev.key === 'Enter') { ev.preventDefault(); if (inp.value.trim()) commitKeep(); else close(); }
+          if (ev.key === 'Escape') { ev.preventDefault(); tagEditOpen = false; renderLib(); }
+          if (ev.key === 'Backspace' && !inp.value && w.tags.length) { w.tags.pop(); markDirty(); buildTags(true); }
+        });
+        inp.addEventListener('input', function () { if (/[,，、;；]/.test(inp.value)) { addTags(inp.value); buildTags(true); } });
+        inp.addEventListener('blur', function () { setTimeout(function () { if (tagEditOpen && document.activeElement !== inp && !box.contains(document.activeElement) && box.isConnected) close(); }, 150); });
+        inp.focus();
+      }
+      buildTags(false);
       var go = function () { location.hash = 'read-' + w.id; };
       c.addEventListener('click', function (e) { if (e.target.closest('.lib-acts,[contenteditable],.lib-tags')) return; go(); });
-      c.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.target.closest('[contenteditable],input')) go(); });
+      c.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.target.closest('[contenteditable],input,button')) go(); });
       if (editing) {
         var a = document.createElement('div'); a.className = 'lib-acts';
         var swap = function (d) { var o = vis[vi + d]; if (!o) return; var j = L.indexOf(o); L[i] = o; L[j] = w; markDirty(); renderLib(); };
