@@ -909,7 +909,7 @@
     list.forEach(function (g) {
       var f = document.createElement('figure');
       f.innerHTML = (isVid(g.src) ? media(g.src) : '<img alt="' + esc(g.title) + '" loading="lazy" src="' + esc(src(g.src)) + '">') +
-        '<figcaption><span>' + esc(g.title || '') + (creditOf(g.src) ? '　繪：' + esc(creditOf(g.src).n) : '') + '</span><span>' + (CAT[g.cat] || '') + '</span></figcaption>';
+'';
       f.onclick = function (e) {
         if (e.target.closest('.x')) return;
         gvOpen(g.id || (g.id = uid()), list);
