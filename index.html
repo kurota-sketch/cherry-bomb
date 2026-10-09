@@ -1149,6 +1149,60 @@ body.is-editing .nv-h:empty::before{content:"（小標題）";opacity:.4}
 .cm-edit{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:8px 10px 12px;background:rgba(0,0,0,.25)}
 .cm-edit button{padding:5px 12px;border:1px solid rgba(255,255,255,.3);border-radius:999px;background:none;color:#fff;font-size:12px;cursor:pointer}
 .cm-edit button:hover{background:rgba(255,255,255,.12)}
+/* ---- 書櫃 v2：分頁、標籤、Notion 式卡片 ---- */
+.lib-tabs{display:flex;gap:4px;margin:0 0 12px;border-bottom:1.5px solid #f1d2d6}
+.lib-tabs button{position:relative;border:0;background:none;padding:10px 16px 11px;font:600 .95rem/1 var(--f-body);color:#9a8587;cursor:pointer;letter-spacing:.08em}
+.lib-tabs button i{margin-left:6px;font:400 11px/1 "Courier Prime",monospace;font-style:normal;opacity:.7}
+.lib-tabs button[aria-pressed="true"]{color:#c9606d}
+.lib-tabs button[aria-pressed="true"]::after{content:"";position:absolute;left:10px;right:10px;bottom:-1.5px;height:2.5px;border-radius:2px;background:#c9606d}
+.lib-tagbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 18px}
+.lib-tagbar button{border:0;background:none;padding:0;cursor:pointer;border-radius:6px}
+.lib-fall{padding:3px 10px!important;font-size:.8rem;color:#9a8587;border:1px solid #eadcdc!important}
+.lib-fall[aria-pressed="true"]{background:#7a4b51!important;color:#fff;border-color:#7a4b51!important}
+.lib-fbtn{opacity:.55}.lib-fbtn[aria-pressed="true"]{opacity:1;box-shadow:0 0 0 2px #fff,0 0 0 3.5px #c9606d}
+.lib-fbtn:hover{opacity:1}
+.lib-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.lib-card{gap:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px rgba(122,75,81,.1),0 2px 6px rgba(122,75,81,.06);transition:box-shadow .2s,transform .2s}
+.lib-card:hover{box-shadow:0 0 0 1px rgba(122,75,81,.16),0 8px 18px rgba(122,75,81,.12);transform:translateY(-2px)}
+.lib-card:hover .lib-cover{transform:none}
+.lib-cover{aspect-ratio:16/10;border-radius:0;box-shadow:none}
+.lib-cover img{object-position:50% 20%}
+.lib-info{display:grid;gap:8px;padding:12px 14px 14px}
+.lib-t{display:flex;align-items:flex-start;gap:7px;margin:0;color:#4a3a3c}
+.lib-t svg{flex:none;width:16px;height:16px;margin-top:2px;color:#9a8587}
+.lib-t b{font-size:.95rem;font-weight:600;line-height:1.4}
+.lib-info small{font-size:.78rem;color:#9a8587;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lib-info small:empty{display:none}
+body.is-editing .lib-info small:empty{display:block;min-height:1.2em}
+.lib-tags{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.lib-tags:empty{display:none}
+.lib-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:5px;font-size:.76rem;line-height:1.5;white-space:nowrap}
+.lib-tag.ed{cursor:pointer}
+.lib-tag i{font-style:normal;opacity:.6;cursor:pointer;padding:0 1px}.lib-tag i:hover{opacity:1}
+.lib-tadd{border:1px dashed #e0c9c6;background:#fff;border-radius:5px;padding:1px 8px;font-size:.74rem;color:#9a8587;cursor:pointer}
+.lib-tadd:hover{color:#c9606d;border-color:#c9606d}
+.lib-tin{width:130px;padding:2px 8px;border:1.5px solid #c9606d;border-radius:5px;font:inherit;font-size:.78rem}
+.lib-acts{padding:0 14px 12px}
+.nv-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:12px}
+/* 漫畫縮圖總覽 */
+.cm-gbtn{width:32px;height:32px;border:0;border-radius:8px;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;display:grid;place-items:center}
+.cm-gbtn[aria-pressed="true"]{background:#e0844e}
+.cm.grid .cm-track,.cm.grid .cm-nav,.cm.grid .cm-bar,.cm.grid .cm-zoom{display:none!important}
+.cm-grid{flex:1 1 0;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px 10px;padding:8px 14px 24px;align-content:start}
+.cm-th{display:grid;gap:5px;border:0;background:none;padding:0;cursor:pointer;color:rgba(255,255,255,.75)}
+.cm-th span{display:block;aspect-ratio:2/3;border-radius:6px;overflow:hidden;background:#3a2f31;box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+.cm-th img{width:100%;height:100%;object-fit:contain;display:block}
+.cm-th small{font:400 11px/1 "Courier Prime",monospace;text-align:center}
+.cm-th[aria-current="true"] span{box-shadow:0 0 0 2.5px #e0844e}
+.cm-th[aria-current="true"] small{color:#e0844e}
+.cm-th:hover span{box-shadow:0 0 0 2px rgba(255,255,255,.4)}
+.cm-gempty{grid-column:1/-1;text-align:center;color:rgba(255,255,255,.6);padding:40px 0}
+@media (max-width:560px){
+  .lib-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .lib-info{padding:10px 10px 12px;gap:6px}
+  .lib-t b{font-size:.86rem}
+  .cm-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 8px;padding:6px 10px 20px}
+}
 /*cover*/
 .dos-back{display:inline-block;margin:0 0 12px;font:700 12px/1 "Courier Prime",var(--f-body);letter-spacing:.2em;color:#9a8587;text-decoration:none}
 .dos-back:hover{color:var(--ac)}
@@ -1696,11 +1750,14 @@ body.is-editing .nv-h:empty::before{content:"（小標題）";opacity:.4}
       <div class="lib-list" id="libList">
         <header class="lib-head"><h2>LIBRARY<small>小說・漫畫</small></h2>
           <div class="lib-add edit-only" hidden><button type="button" class="btn small" id="libAddNovel">＋ 新增小說</button><button type="button" class="btn small" id="libAddComic">＋ 新增漫畫</button></div></header>
+        <div class="lib-tabs" id="libTabs" role="tablist" aria-label="作品分類"></div>
+        <div class="lib-tagbar" id="libTagbar" hidden></div>
+        <datalist id="libTagList"></datalist>
         <div class="lib-grid" id="libGrid"></div>
       </div>
       <article class="nv" id="novel" hidden>
         <button type="button" class="nv-back" data-back>← 回到書櫃</button>
-        <header class="nv-head"><p class="nv-kind">NOVEL</p><h2 class="nv-title" id="nvTitle"></h2><p class="nv-note" id="nvNote"></p></header>
+        <header class="nv-head"><p class="nv-kind">NOVEL</p><h2 class="nv-title" id="nvTitle"></h2><p class="nv-note" id="nvNote"></p><div class="nv-tags" id="nvTags"></div></header>
         <div class="nv-body" id="nvBody"></div>
         <footer class="nv-end"><span>✦ END ✦</span><button type="button" class="nv-back" data-back>← 回到書櫃</button></footer>
       </article>
@@ -1804,8 +1861,9 @@ body.is-editing .nv-h:empty::before{content:"（小標題）";opacity:.4}
 <img id="mia" class="mia" src="cursor-pair.png" alt="" aria-hidden="true" hidden>
 <input type="color" id="colorPick" hidden>
 <div class="cm" id="comic" hidden role="dialog" aria-label="漫畫閱讀">
-  <div class="cm-top"><button type="button" class="cm-x" id="cmClose" aria-label="關閉">✕</button><b id="cmTitle"></b><span class="cm-zoom"><button type="button" id="cmZOut" aria-label="縮小">－</button><em id="cmZV">100%</em><button type="button" id="cmZIn" aria-label="放大">＋</button></span><span id="cmPage"></span></div>
+  <div class="cm-top"><button type="button" class="cm-x" id="cmClose" aria-label="關閉">✕</button><b id="cmTitle"></b><span class="cm-zoom"><button type="button" id="cmZOut" aria-label="縮小">－</button><em id="cmZV">100%</em><button type="button" id="cmZIn" aria-label="放大">＋</button></span><button type="button" class="cm-gbtn" id="cmGridBtn" aria-label="縮圖總覽" aria-pressed="false" title="縮圖總覽"><svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg></button><span id="cmPage"></span></div>
   <div class="cm-track" id="cmTrack"></div>
+  <div class="cm-grid" id="cmGrid" hidden></div>
   <button type="button" class="cm-nav prev" id="cmPrev" aria-label="上一頁">‹</button><button type="button" class="cm-nav next" id="cmNext" aria-label="下一頁">›</button>
   <div class="cm-bar"><span id="cmA">1</span><input type="range" id="cmSlider" min="1" max="1" value="1" aria-label="頁數"><span id="cmB">1</span></div>
   <div class="cm-edit" id="cmEdit" hidden></div>
@@ -1896,7 +1954,7 @@ body.is-editing .nv-h:empty::before{content:"（小標題）";opacity:.4}
   window.__cbRoute=route;
 })();
 </script>
-<script src="app.js?v=1791566713"></script>
+<script src="app.js?v=1791567771"></script>
 
 </body>
 </html>
