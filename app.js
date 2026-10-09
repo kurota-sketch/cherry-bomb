@@ -353,6 +353,18 @@
     if (e.target.closest('.mq-src')) renderMq();
   });
   renderSlots = function () { _renderSlots0(); renderHud(); renderRadar(); renderMq(); };
+  // 五圍圖：每次進到角色頁、圖出現在畫面上時，從中心放射出去
+  (function () {
+    if (!('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        var b = e.target;
+        if (e.isIntersecting) { if (!b.dataset.played) { b.classList.remove('play'); void b.offsetWidth; b.classList.add('play'); b.dataset.played = '1'; } }
+        else if (!e.target.offsetParent) delete b.dataset.played; // 離開頁面（被隱藏）後，下次進來再播一次
+      });
+    }, { threshold: 0.35 });
+    [].forEach.call(document.querySelectorAll('.dos-radar'), function (b) { io.observe(b); });
+  })();
 
   // ---------- 拼貼牆 ----------
   var WIDGETS = { title: '標題', timer: '夢齡計時器', about: '關於本站', log: '更新紀錄' };

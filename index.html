@@ -1337,6 +1337,23 @@ body:not(.is-editing) .arc-body:empty{display:none}
 .arc-ed{display:flex;flex-wrap:wrap;gap:4px;margin-top:16px}
 body.is-editing .arc-box [contenteditable]{outline:1px dashed #e0c9c6;outline-offset:3px;border-radius:4px}
 @media (max-width:640px){.arc-dlg{place-items:end stretch;padding:0}.arc-box{width:100%;max-height:86vh;border-radius:22px 22px 0 0;box-shadow:0 -10px 30px rgba(58,42,44,.25)}}
+/* ---- 五圍圖：進入頁面時從中心放射出去 ---- */
+.dos-radar .ring,.dos-radar line,.dos-radar .val,.dos-radar .vdots circle{transform-box:view-box;transform-origin:120px 122px}
+.dos-radar.play .ring{animation:rdRing .6s cubic-bezier(.2,.8,.3,1) both}
+.dos-radar.play .ring:nth-of-type(2){animation-delay:.08s}.dos-radar.play .ring:nth-of-type(3){animation-delay:.16s}
+.dos-radar.play line{animation:rdLine .5s ease-out .15s both}
+.dos-radar.play .val{animation:rdGrow .95s cubic-bezier(.34,1.5,.5,1) .35s both}
+.dos-radar.play .vdots circle{animation:rdGrow .95s cubic-bezier(.34,1.5,.5,1) .35s both}
+.dos-radar.play .rd-l b{animation:rdPop .45s cubic-bezier(.34,1.8,.5,1) both}
+.dos-radar.play .rd-l:nth-of-type(1) b{animation-delay:.9s}.dos-radar.play .rd-l:nth-of-type(2) b{animation-delay:.98s}.dos-radar.play .rd-l:nth-of-type(3) b{animation-delay:1.06s}.dos-radar.play .rd-l:nth-of-type(4) b{animation-delay:1.14s}.dos-radar.play .rd-l:nth-of-type(5) b{animation-delay:1.22s}
+.dos-radar.play .rd-l span{animation:rdFade .5s ease-out .2s both}
+@keyframes rdRing{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
+@keyframes rdLine{from{transform:scale(0);opacity:0}to{transform:none;opacity:1}}
+@keyframes rdGrow{from{transform:scale(0);opacity:.2}to{transform:none;opacity:1}}
+@keyframes rdPop{from{transform:scale(0);opacity:0}to{transform:none;opacity:1}}
+@keyframes rdFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.rd-l b{display:inline-block}
+@media (prefers-reduced-motion:reduce){.dos-radar.play *{animation:none!important}}
 /*cover*/
 .dos-back{display:inline-block;margin:0 0 12px;font:700 12px/1 "Courier Prime",var(--f-body);letter-spacing:.2em;color:#9a8587;text-decoration:none}
 .dos-back:hover{color:var(--ac)}
@@ -2064,7 +2081,7 @@ body.is-editing .arc-box [contenteditable]{outline:1px dashed #e0c9c6;outline-of
   window.__cbRoute=route;
 })();
 </script>
-<script src="app.js?v=1791571478"></script>
+<script src="app.js?v=1791576868"></script>
 
 </body>
 </html>
