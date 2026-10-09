@@ -35,7 +35,12 @@
    "title": "",
    "credit": "大萌",
    "at": "2026-10-09T18:27:33.097Z",
-   "props": []
+   "props": [],
+   "pos": {
+    "x": 50,
+    "y": 50,
+    "z": 1
+   }
   },
   {
    "id": "mv1arp7wcsos",
@@ -44,7 +49,12 @@
    "title": "",
    "credit": "Lucky",
    "at": "2026-10-09T18:26:57.260Z",
-   "props": []
+   "props": [],
+   "pos": {
+    "x": 16.674378470796754,
+    "y": 58.102167388611264,
+    "z": 1.4693280768000003
+   }
   },
   {
    "id": "mv1a85859xwc",
@@ -841,23 +851,6 @@
  ],
  "library": [
   {
-   "id": "mv182ercm654",
-   "type": "comic",
-   "title": "很帥氣喔",
-   "note": "",
-   "pages": [
-    "img/mv1836l4etxz.webp",
-    "img/mv1836sjirsf.webp",
-    "img/mv1836z6kwau.webp",
-    "img/mv183770ffdk.webp"
-   ],
-   "dir": "rtl",
-   "tags": [
-    "自繪",
-    "主線"
-   ]
-  },
-  {
    "id": "mv18x070zxmt",
    "type": "comic",
    "title": "個性交換",
@@ -884,7 +877,34 @@
    "tags": [
     "自繪",
     "非主線"
-   ]
+   ],
+   "coverPos": {
+    "x": 49.55555555555556,
+    "y": 41.333333333333336,
+    "z": 1
+   }
+  },
+  {
+   "id": "mv182ercm654",
+   "type": "comic",
+   "title": "很帥氣喔",
+   "note": "",
+   "pages": [
+    "img/mv1836l4etxz.webp",
+    "img/mv1836sjirsf.webp",
+    "img/mv1836z6kwau.webp",
+    "img/mv183770ffdk.webp"
+   ],
+   "dir": "rtl",
+   "tags": [
+    "自繪",
+    "主線"
+   ],
+   "coverPos": {
+    "x": 48.666666666666664,
+    "y": 0,
+    "z": 1
+   }
   },
   {
    "id": "mv19fzip06vu",
