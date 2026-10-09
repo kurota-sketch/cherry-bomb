@@ -1490,8 +1490,25 @@
   // ---- 漫畫 ----
   var cmW = null;
   function cmIdx() { var t = $('cmTrack'); return Math.round(Math.abs(t.scrollLeft) / (t.clientWidth || 1)); }
-  function cmGo(d) { var t = $('cmTrack'); var rtl = t.classList.contains('rtl'); t.scrollBy({ left: (rtl ? -d : d) * t.clientWidth, behavior: 'smooth' }); }
-  function cmTo(i, smooth) { var t = $('cmTrack'); t.scrollTo({ left: (t.classList.contains('rtl') ? -1 : 1) * i * t.clientWidth, behavior: smooth ? 'smooth' : 'auto' }); }
+  function cmGo(d) { if (cmZ > 1) cmZoom(1); var t = $('cmTrack'); var rtl = t.classList.contains('rtl'); t.scrollBy({ left: (rtl ? -d : d) * t.clientWidth, behavior: 'smooth' }); }
+  // 電腦上放大：100% → 150% → 200% → 250%，放大後可以拖曳看細節
+  var cmZ = 1, CMZ = [1, 1.5, 2, 2.5];
+  function cmZoom(z) {
+    var t = $('cmTrack'), pg = t.children[cmIdx()];
+    [].forEach.call(t.querySelectorAll('.cm-pg'), function (c) { c.classList.remove('zoomed'); var im = c.querySelector('img'); if (im) { im.style.width = ''; im.style.height = ''; } });
+    var im = pg && pg.querySelector('img');
+    if (z > 1 && im && im.naturalWidth) {
+      var r = im.naturalWidth / im.naturalHeight, base = Math.min(pg.clientHeight - 10, (pg.clientWidth - 16) / r);
+      pg.classList.add('zoomed'); im.style.height = base * z + 'px'; im.style.width = base * z * r + 'px';
+      pg.scrollLeft = (pg.scrollWidth - pg.clientWidth) / 2; pg.scrollTop = (pg.scrollHeight - pg.clientHeight) / 2;
+    } else z = 1;
+    cmZ = z; t.classList.toggle('zooming', z > 1);
+    $('cmZV').textContent = Math.round(z * 100) + '%'; $('cmZOut').disabled = z <= 1; $('cmZIn').disabled = z >= CMZ[CMZ.length - 1];
+  }
+  $('cmZIn').addEventListener('click', function () { var i = CMZ.indexOf(cmZ); cmZoom(CMZ[Math.min(CMZ.length - 1, i + 1)]); });
+  $('cmZOut').addEventListener('click', function () { var i = CMZ.indexOf(cmZ); cmZoom(CMZ[Math.max(0, i - 1)]); });
+  $('cmTrack').addEventListener('dblclick', function (e) { if (e.target.tagName === 'IMG') cmZoom(cmZ > 1 ? 1 : 2); });
+  function cmTo(i, smooth) { if (cmZ > 1) cmZoom(1); var t = $('cmTrack'); t.scrollTo({ left: (t.classList.contains('rtl') ? -1 : 1) * i * t.clientWidth, behavior: smooth ? 'smooth' : 'auto' }); }
   function cmCount() {
     var P = (cmW && cmW.pages) || [], i = Math.min(cmIdx(), Math.max(0, P.length - 1)), sl = $('cmSlider');
     $('cmPage').textContent = P.length ? (i + 1) + ' / ' + P.length : '';
@@ -1504,21 +1521,24 @@
   // 滑鼠按住拖曳也能翻頁；滾輪往下＝下一頁
   (function () {
     var t = $('cmTrack'), d = null, wl = 0;
-    t.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse' || e.button !== 0) return; d = { x: e.clientX, s: t.scrollLeft, i: cmIdx() }; t.classList.add('drag'); e.preventDefault(); });
-    window.addEventListener('pointermove', function (e) { if (!d) return; t.scrollLeft = d.s - (e.clientX - d.x); });
+    t.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      if (cmZ > 1) { var pg = e.target.closest('.cm-pg'); if (pg) { d = { pan: pg, x: e.clientX, y: e.clientY, sl: pg.scrollLeft, st: pg.scrollTop }; e.preventDefault(); } return; }
+      d = { x: e.clientX, s: t.scrollLeft, i: cmIdx() }; t.classList.add('drag'); e.preventDefault(); });
+    window.addEventListener('pointermove', function (e) { if (!d) return; if (d.pan) { d.pan.scrollLeft = d.sl - (e.clientX - d.x); d.pan.scrollTop = d.st - (e.clientY - d.y); return; } t.scrollLeft = d.s - (e.clientX - d.x); });
     window.addEventListener('pointerup', function (e) {
-      if (!d) return; var dx = e.clientX - d.x, i = d.i, rtl = t.classList.contains('rtl'); d = null; t.classList.remove('drag');
+      if (!d) return; if (d.pan) { d = null; return; } var dx = e.clientX - d.x, i = d.i, rtl = t.classList.contains('rtl'); d = null; t.classList.remove('drag');
       if (Math.abs(dx) > 50) i += (dx < 0 ? 1 : -1) * (rtl ? -1 : 1);
       var n = ((cmW && cmW.pages) || []).length; cmTo(Math.max(0, Math.min(n - 1, i)), true);
     });
     t.addEventListener('wheel', function (e) {
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; e.preventDefault();
+      if (cmZ > 1 || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; e.preventDefault();
       var now = Date.now(); if (now - wl < 450 || Math.abs(e.deltaY) < 4) return; wl = now;
       var n = ((cmW && cmW.pages) || []).length; cmTo(Math.max(0, Math.min(n - 1, cmIdx() + (e.deltaY > 0 ? 1 : -1))), true);
     }, { passive: false });
   })();
   function renderComic(w, keep) {
-    cmW = w; var t = $('cmTrack'), at = keep ? cmIdx() : 0, P = w.pages = w.pages || [];
+    cmW = w; var t = $('cmTrack'), at = keep ? cmIdx() : 0, P = w.pages = w.pages || []; cmZ = 1; t.classList.remove('zooming'); $('cmZV').textContent = '100%'; $('cmZOut').disabled = true; $('cmZIn').disabled = false;
     $('cmTitle').textContent = w.title || '';
     t.classList.toggle('rtl', w.dir === 'rtl'); t.innerHTML = '';
     if (!P.length) t.innerHTML = '<div class="cm-pg empty">' + (editing ? '按下方「＋ 加頁面」放漫畫圖（可以一次選很多張）' : '這部漫畫還沒有頁面') + '</div>';

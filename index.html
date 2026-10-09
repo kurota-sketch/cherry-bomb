@@ -1131,6 +1131,14 @@ body.is-editing .nv-h:empty::before{content:"（小標題）";opacity:.4}
 .cm-nav.prev{left:10px}.cm-nav.next{right:10px}
 .cm-nav:hover{background:rgba(255,255,255,.18)}
 @media (hover:none) and (pointer:coarse){.cm-nav{display:none}}
+.cm-zoom{display:flex;align-items:center;gap:4px;font-style:normal}
+.cm-zoom em{min-width:44px;text-align:center;font:400 12px/1 "Courier Prime",monospace;font-style:normal;opacity:.85}
+.cm-zoom button{width:28px;height:28px;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font-size:14px;cursor:pointer}
+.cm-zoom button:hover{background:rgba(255,255,255,.2)}.cm-zoom button:disabled{opacity:.3;cursor:default}
+@media (hover:none) and (pointer:coarse){.cm-zoom{display:none}}
+.cm-track.zooming{overflow-x:hidden;scroll-snap-type:none}
+.cm-pg.zoomed{display:block;overflow:auto;cursor:grab;padding:0}
+.cm-pg.zoomed img{max-width:none;max-height:none;margin:0 auto}
 .cm-track{cursor:grab}.cm-track.drag{cursor:grabbing;scroll-snap-type:none}
 .cm-bar{display:flex;align-items:center;gap:12px;padding:6px 18px 12px;font:400 12px/1 "Courier Prime",monospace;color:rgba(255,255,255,.75)}
 .cm-bar input{flex:1;accent-color:#e0844e;height:20px;cursor:pointer}
@@ -1793,7 +1801,7 @@ body.is-editing .nv-h:empty::before{content:"（小標題）";opacity:.4}
 <img id="mia" class="mia" src="cursor-pair.png" alt="" aria-hidden="true" hidden>
 <input type="color" id="colorPick" hidden>
 <div class="cm" id="comic" hidden role="dialog" aria-label="漫畫閱讀">
-  <div class="cm-top"><button type="button" class="cm-x" id="cmClose" aria-label="關閉">✕</button><b id="cmTitle"></b><span id="cmPage"></span></div>
+  <div class="cm-top"><button type="button" class="cm-x" id="cmClose" aria-label="關閉">✕</button><b id="cmTitle"></b><span class="cm-zoom"><button type="button" id="cmZOut" aria-label="縮小">－</button><em id="cmZV">100%</em><button type="button" id="cmZIn" aria-label="放大">＋</button></span><span id="cmPage"></span></div>
   <div class="cm-track" id="cmTrack"></div>
   <button type="button" class="cm-nav prev" id="cmPrev" aria-label="上一頁">‹</button><button type="button" class="cm-nav next" id="cmNext" aria-label="下一頁">›</button>
   <div class="cm-bar"><span id="cmA">1</span><input type="range" id="cmSlider" min="1" max="1" value="1" aria-label="頁數"><span id="cmB">1</span></div>
