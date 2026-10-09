@@ -824,7 +824,11 @@
     "img/mv1836z6kwau.webp",
     "img/mv183770ffdk.webp"
    ],
-   "dir": "rtl"
+   "dir": "rtl",
+   "tags": [
+    "自繪",
+    "主線"
+   ]
   },
   {
    "id": "mv18x070zxmt",
@@ -849,13 +853,17 @@
     "img/mv18xotosuom.webp",
     "img/mv18xp6tgu4g.webp"
    ],
-   "dir": "rtl"
+   "dir": "rtl",
+   "tags": [
+    "自繪",
+    "非主線"
+   ]
   },
   {
    "id": "mv19fzip06vu",
    "type": "novel",
    "title": "為熱愛而生",
-   "note": "",
+   "note": "黑白配圖為字繪",
    "blocks": [
     {
      "t": "p",
@@ -886,7 +894,18 @@
     }
    ],
    "cover": "img/mv19kkiqusq7.webp",
-   "tags": []
+   "tags": [
+    "委托",
+    "文：尚恩",
+    "圖：阿葉"
+   ]
   }
- ]
+ ],
+ "libTags": {
+  "非主線": 0,
+  "委托": 1,
+  "文：g": 6,
+  "文：尚恩": 3,
+  "圖：阿葉": 7
+ }
 }
